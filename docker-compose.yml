@@ -5,6 +5,7 @@ services:
       context: ./account
       target: builder
     image: account
+    env_file: .env.dev
     ports:
       - "8080:8080"
     environment:
