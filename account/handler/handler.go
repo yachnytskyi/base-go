@@ -5,16 +5,28 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
+	"github.com/yachnytskyi/base/account/model"
 )
 
-type Handler struct{}
-
-type Config struct {
-	R *gin.Engine
+// Handler struct holds required services for handler to function
+type Handler struct {
+	UserService model.UserService
 }
 
+// Config will hold services that will eventually be injected into this
+// handler layer on handler initialization
+type Config struct {
+	R           *gin.Engine
+	UserService model.UserService
+}
+
+// NewHandler initializes the handler with required injected services along with http routes
+// Does not return as it deals directly with a reference to the gin Engine
 func NewHandler(c *Config) {
-	h := &Handler{}
+	// Create a handler (with injected services)
+	h := &Handler{
+		UserService: c.UserService,
+	}
 
 	g := c.R.Group(os.Getenv("ACCOUNT_API_URL"))
 
@@ -27,12 +39,6 @@ func NewHandler(c *Config) {
 	g.DELETE("/image", h.DeleteImage)
 	g.PUT("/details", h.Details)
 
-}
-
-func (h *Handler) Me(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
-		"hello": "it's me",
-	})
 }
 
 func (h *Handler) SignUp(c *gin.Context) {

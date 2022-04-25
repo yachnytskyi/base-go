@@ -1,6 +1,10 @@
 package model
 
-import "github.com/google/uuid"
+import (
+	"context"
+
+	"github.com/google/uuid"
+)
 
 // Service interface defines methods the handler layer expects
 // any service it interacts with to implement
@@ -9,9 +13,9 @@ import "github.com/google/uuid"
 // any repository it iteracts with to implement
 
 type UserService interface {
-	Get(uid uuid.UUID) (*User, error)
+	Get(ctx context.Context, uid uuid.UUID) (*User, error)
 }
 
 type UserRepository interface {
-	FindById(uid uuid.UUID) (*User, error)
+	FindById(ctx context.Context, uid uuid.UUID) (*User, error)
 }
