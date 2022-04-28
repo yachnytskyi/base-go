@@ -1,4 +1,4 @@
-module github.com/yachnytskyi/base/account
+module github.com/yachnytskyi/base
 
 go 1.17
 

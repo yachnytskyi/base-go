@@ -8,8 +8,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"github.com/yachnytskyi/base/account/model"
-	"github.com/yachnytskyi/base/account/model/mocks"
+	"github.com/yachnytskyi/base/model"
+	"github.com/yachnytskyi/base/model/mocks"
 )
 
 func TestGet(t *testing.T) {

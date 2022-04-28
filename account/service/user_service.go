@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	"github.com/yachnytskyi/base/account/model"
+	"github.com/yachnytskyi/base/model"
 )
 
 // UserService acts as a struct for injecting an implementation of UserRepository
