@@ -4,8 +4,8 @@ import (
 	"log"
 
 	"github.com/gin-gonic/gin"
-	"github.com/yachnytskyi/base-go/model"
-	"github.com/yachnytskyi/base-go/model/apperrors"
+	"github.com/yachnytskyi/base-go/account/model"
+	"github.com/yachnytskyi/base-go/account/model/apperrors"
 )
 
 // signUpReq is not exported, hence the lowercase name

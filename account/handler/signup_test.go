@@ -10,9 +10,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"github.com/yachnytskyi/base-go/model"
-	"github.com/yachnytskyi/base-go/model/apperrors"
-	"github.com/yachnytskyi/base-go/model/mocks"
+	"github.com/yachnytskyi/base-go/account/model"
+	"github.com/yachnytskyi/base-go/account/model/apperrors"
+	"github.com/yachnytskyi/base-go/account/model/mocks"
 )
 
 func TestSignUp(t *testing.T) {

@@ -5,7 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
-	"github.com/yachnytskyi/base-go/model/apperrors"
+	"github.com/yachnytskyi/base-go/account/model/apperrors"
 )
 
 // used to help extract validation errors.
