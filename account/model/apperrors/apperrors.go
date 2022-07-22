@@ -95,7 +95,7 @@ func NewConflict(name string, value string) *Error {
 	}
 }
 
-// NewInternal for 500 errors and unknown errors
+// NewInternal for 500 errors and unknown errors.
 func NewInternal() *Error {
 	return &Error{
 		Type:    Internal,
@@ -103,7 +103,7 @@ func NewInternal() *Error {
 	}
 }
 
-// NewNotFound to create an error for 404
+// NewNotFound to create an error for 404.
 func NewNotFound(name string, value string) *Error {
 	return &Error{
 		Type:    NotFound,
@@ -111,7 +111,7 @@ func NewNotFound(name string, value string) *Error {
 	}
 }
 
-// NewPayloadTooLarge to create an error for 413
+// NewPayloadTooLarge to create an error for 413.
 func NewPayloadTooLarge(maxBodySize int64, contentLength int64) *Error {
 	return &Error{
 		Type:    PayloadTooLarge,
