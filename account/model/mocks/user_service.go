@@ -5,7 +5,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"
-	"github.com/yachnytskyi/base/model"
+	"github.com/yachnytskyi/base-go/account/model"
 )
 
 // MockUserService is a mock type for model.UserService
