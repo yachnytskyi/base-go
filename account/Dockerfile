@@ -20,7 +20,7 @@ FROM alpine:latest
 RUN apk --no-cache add ca-certificates
 WORKDIR /root/
 
-#Copy executable from builder
+# Copy the executable from the builder
 COPY --from=builder /go/src/app/run .
 
 CMD ["./run"]

@@ -23,7 +23,7 @@ func bindData(c *gin.Context, req interface{}) bool {
 		log.Printf("Error binding data: %+v\n", err)
 
 		if errs, ok := err.(validator.ValidationErrors); ok {
-			// could probably extract this, it is also in middleware_auth_user.
+			// Could probably extract this, it is also in middleware_auth_user.
 			var invalidArgs []invalidArgument
 
 			for _, err := range errs {
@@ -44,10 +44,10 @@ func bindData(c *gin.Context, req interface{}) bool {
 			return false
 		}
 
-		// later I will add code for validating max body size here.
+		// Later I will add code for validating max body size here.
 
-		// if a server is not able to properly extract validation errors,
-		// it will fallback and return an internal server error
+		// If a server is not able to properly extract validation errors,
+		// it will fallback and return an internal server error.
 		fallBack := apperrors.NewInternal()
 
 		c.JSON(fallBack.Status(), gin.H{"error": fallBack})

@@ -6,22 +6,22 @@ import (
 	"net/http"
 )
 
-// Type holds a type string and integer code for the error
+// Type holds a type string and integer code for the error.
 type Type string
 
-// "Set" of valid errorTypes
+// "Set" of valid errorTypes.
 const (
-	Authorization   Type = "AUTHORIZATION"   // Authentication Failures -
-	BadRequest      Type = "BADREQUEST"      // Validation errors / BadInput
-	Conflict        Type = "CONFLICT"        // Already exists (eg, create account with existent email) - 409
-	Internal        Type = "INTERNAL"        // Server (500) and fallback errors
-	NotFound        Type = "NOTFOUND"        // For not finding resource
-	PayloadTooLarge Type = "PAYLOADTOOLARGE" // for uploading tons of JSON, or an image over the limit - 413
+	Authorization   Type = "AUTHORIZATION"   // Authentication Failures -.
+	BadRequest      Type = "BADREQUEST"      // Validation errors / BadInput.
+	Conflict        Type = "CONFLICT"        // Already exists (eg, create account with existent email) - 409.
+	Internal        Type = "INTERNAL"        // Server (500) and fallback errors.
+	NotFound        Type = "NOTFOUND"        // For not finding resource.
+	PayloadTooLarge Type = "PAYLOADTOOLARGE" // for uploading tons of JSON, or an image over the limit - 413.
 )
 
 // Error holds a custom error for the application
 // which is helpful in returning a consistent
-// error type/message from API endpoints
+// error type/message from API endpoints.
 type Error struct {
 	Type    Type   `json:"type"`
 	Message string `json:"message"`
@@ -29,14 +29,14 @@ type Error struct {
 
 // Error satisfies standard error interface
 // we can return errors from this package as
-// a regular old go _error_
+// a regular old go _error_.
 func (e *Error) Error() string {
 	return e.Message
 }
 
 // Status is a mapping errors to status codes
 // Of course, this is somewhat redundant since
-// our errors already map http status codes
+// our errors already map http status codes.
 func (e *Error) Status() int {
 	switch e.Type {
 	case Authorization:
@@ -58,7 +58,7 @@ func (e *Error) Status() int {
 
 // Status checks the runtime type
 // of the error and returns an http
-// status code if the error is model.Error
+// status code if the error is model.Error.
 func Status(err error) int {
 	var e *Error
 	if errors.As(err, &e) {
@@ -71,7 +71,7 @@ func Status(err error) int {
 * Error "Factories"
  */
 
-// NewAuthorization to create a 401
+// NewAuthorization to create a 401.
 func NewAuthorization(reason string) *Error {
 	return &Error{
 		Type:    Authorization,
@@ -79,7 +79,7 @@ func NewAuthorization(reason string) *Error {
 	}
 }
 
-// NewBadRequest to create 400 errors (validation, for example)
+// NewBadRequest to create 400 errors (validation, for example).
 func NewBadRequest(reason string) *Error {
 	return &Error{
 		Type:    BadRequest,
@@ -87,7 +87,7 @@ func NewBadRequest(reason string) *Error {
 	}
 }
 
-// NewConflict to create an error for 409
+// NewConflict to create an error for 409.
 func NewConflict(name string, value string) *Error {
 	return &Error{
 		Type:    Conflict,

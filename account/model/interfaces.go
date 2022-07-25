@@ -7,7 +7,7 @@ import (
 )
 
 // UserService defines methods the handler layer expects
-// any service it interacts with to implement
+// any service it interacts with to implement.
 type UserService interface {
 	Get(ctx context.Context, uid uuid.UUID) (*User, error)
 	SignUp(ctx context.Context, u *User) error

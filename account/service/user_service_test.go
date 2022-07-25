@@ -16,23 +16,23 @@ func TestGet(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		uid, _ := uuid.NewRandom()
 
-		mockUserResp := &model.User{
+		mockUserResponse := &model.User{
 			UID:      uid,
 			Email:    "kostya.com",
 			Username: "Kostya Kostyan",
 		}
 
 		mockUserRepository := new(mocks.MockUserRepository)
-		us := NewUserService(&USConfig{
+		us := NewUserService(&UserConfig{
 			UserRepository: mockUserRepository,
 		})
-		mockUserRepository.On("FindById", mock.Anything, uid).Return(mockUserResp, nil)
+		mockUserRepository.On("FindById", mock.Anything, uid).Return(mockUserResponse, nil)
 
 		ctx := context.TODO()
 		u, err := us.Get(ctx, uid)
 
 		assert.NoError(t, err)
-		assert.Equal(t, u, mockUserResp)
+		assert.Equal(t, u, mockUserResponse)
 		mockUserRepository.AssertExpectations(t)
 	})
 
@@ -40,7 +40,7 @@ func TestGet(t *testing.T) {
 		uid, _ := uuid.NewRandom()
 
 		mockUserRepository := new(mocks.MockUserRepository)
-		us := NewUserService(&USConfig{
+		us := NewUserService(&UserConfig{
 			UserRepository: mockUserRepository,
 		})
 
