@@ -55,24 +55,24 @@ func TestMe(t *testing.T) {
 
 		router.ServeHTTP(rr, request)
 
-		respBody, err := json.Marshal(gin.H{
+		expectedResponseBody, err := json.Marshal(gin.H{
 			"user": mockUserResp,
 		})
 		assert.NoError(t, err)
 
 		assert.Equal(t, 200, rr.Code)
-		assert.Equal(t, respBody, rr.Body.Bytes())
-		mockUserService.AssertExpectations(t) // Assert that UserService.Get was called
+		assert.Equal(t, expectedResponseBody, rr.Body.Bytes())
+		mockUserService.AssertExpectations(t) // Assert that UserService.Get was called.
 	})
 
 	t.Run("NoContextUser", func(t *testing.T) {
 		mockUserService := new(mocks.MockUserService)
 		mockUserService.On("Get", mock.Anything, mock.Anything).Return(nil, nil)
 
-		// A response recorder for getting written http response
+		// A response recorder for getting written http response.
 		rr := httptest.NewRecorder()
 
-		// Do not append user to context
+		// Do not append user to context.
 		router := gin.Default()
 		NewHandler(&Config{
 			R:           router,
@@ -93,7 +93,7 @@ func TestMe(t *testing.T) {
 		mockUserService := new(mocks.MockUserService)
 		mockUserService.On("Get", mock.Anything, uid).Return(nil, fmt.Errorf("Some error down call chain"))
 
-		// a response recorder for getting written http response
+		// A response recorder for getting written http response.
 		rr := httptest.NewRecorder()
 
 		router := gin.Default()
@@ -114,15 +114,15 @@ func TestMe(t *testing.T) {
 
 		router.ServeHTTP(rr, request)
 
-		respErr := apperrors.NewNotFound("user", uid.String())
+		expectedResponseError := apperrors.NewNotFound("user", uid.String())
 
-		respBody, err := json.Marshal(gin.H{
-			"error": respErr,
+		expectedrResponseBody, err := json.Marshal(gin.H{
+			"error": expectedResponseError,
 		})
 		assert.NoError(t, err)
 
-		assert.Equal(t, respErr.Status(), rr.Code)
-		assert.Equal(t, respBody, rr.Body.Bytes())
+		assert.Equal(t, expectedResponseError.Status(), rr.Code)
+		assert.Equal(t, expectedrResponseBody, rr.Body.Bytes())
 		mockUserService.AssertExpectations(t) // Assert that UserService.Get was called
 	})
 }
