@@ -1,5 +1,17 @@
 version: "3.9"
 services:
+  postgres-auth:
+    image: "postgres:alpine"
+    environment:
+      - POSTGRES_PASSWORD=password
+    ports:
+      - "5432:5432"
+    #   Set a volume for data and initial sql script.
+    #   May configure initial db for future demo.
+    volumes:
+      - "pgdata_auth:/var/lib/postgresql/data"
+      # - ./init:/docker-entrypoint-initdb.d/
+    command: ["postgres", "-c", "log_statement=all"]
   account:
     build:
       context: ./account
@@ -13,4 +25,8 @@ services:
     volumes:
       - ./account:/go/src/app
     # Have to use $$ (double-dollar) so docker doesn't try to substitute a variable.
+    depends_on:
+      - postgres-auth
     command: reflex -r "\.go$$" -s -- sh -c "go run ./"
+volumes:
+  pgdata_auth:

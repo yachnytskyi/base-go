@@ -2,9 +2,11 @@ package service
 
 import (
 	"context"
+	"log"
 
 	"github.com/google/uuid"
 	"github.com/yachnytskyi/base-go/account/model"
+	"github.com/yachnytskyi/base-go/account/model/apperrors"
 )
 
 // UserService acts as a struct for injecting an implementation of UserRepository
@@ -37,5 +39,19 @@ func (s *UserService) Get(ctx context.Context, uid uuid.UUID) (*model.User, erro
 // SignUp reaches out to a UserRepository to verify the
 // email adress is available and signs up the user if this is the case.
 func (s *UserService) SignUp(ctx context.Context, u *model.User) error {
-	panic("Method not implemented")
+	password, err := hashPassword(u.Password)
+
+	if err != nil {
+		log.Printf("Unable to signup user for email: %v\n", u.Email)
+		return apperrors.NewInternal()
+	}
+
+	// Assign the hashPassword to the User.
+	u.Password = password
+
+	if err := s.UserRepository.Create(ctx, u); err != nil {
+		return err
+	}
+
+	return nil
 }
