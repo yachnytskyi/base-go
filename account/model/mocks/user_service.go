@@ -8,21 +8,21 @@ import (
 	"github.com/yachnytskyi/base-go/account/model"
 )
 
-// MockUserService is a mock type for model.UserService
+// MockUserService is a mock type for model.UserService.
 type MockUserService struct {
 	mock.Mock
 }
 
-// Get is mock of UserService Get
+// Get is mock of UserService Get.
 func (m *MockUserService) Get(ctx context.Context, uid uuid.UUID) (*model.User, error) {
 	// Args that will be passed to "Return" in the tests, when function
-	// is called with a uid. Hence the name "ret"
+	// is called with a uid. Hence the name "ret".
 	ret := m.Called(ctx, uid)
 
-	// first value passed to "Return"
+	// First value passed to "Return".
 	var r0 *model.User
 	if ret.Get(0) != nil {
-		// we can just return this if we know we won't be passing function to "Return"
+		// We can just return this if we know we won't be passing function to "Return".
 		r0 = ret.Get(0).(*model.User)
 	}
 
@@ -35,7 +35,7 @@ func (m *MockUserService) Get(ctx context.Context, uid uuid.UUID) (*model.User, 
 	return r0, r1
 }
 
-// SignUp is a mock of UserService.SignUp
+// SignUp is a mock of UserService.SignUp.
 func (m *MockUserService) SignUp(ctx context.Context, u *model.User) error {
 	ret := m.Called(ctx, u)
 

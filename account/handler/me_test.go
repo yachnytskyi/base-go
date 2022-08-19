@@ -17,7 +17,7 @@ import (
 )
 
 func TestMe(t *testing.T) {
-	// Setup
+	// Setup.
 	gin.SetMode(gin.TestMode)
 
 	t.Run("Success", func(t *testing.T) {
@@ -32,12 +32,12 @@ func TestMe(t *testing.T) {
 		mockUserService := new(mocks.MockUserService)
 		mockUserService.On("Get", mock.AnythingOfType("*gin.Context"), uid).Return(mockUserResp, nil)
 
-		// A response recorder for etting written http response
+		// A response recorder for etting written http response.
 		rr := httptest.NewRecorder()
 
 		// Use a middleware to set context for test
 		// the only claims we care about in this test
-		// is the UID
+		// is the UID.
 		router := gin.Default()
 		router.Use(func(c *gin.Context) {
 			c.Set("user", &model.User{
@@ -123,6 +123,6 @@ func TestMe(t *testing.T) {
 
 		assert.Equal(t, expectedResponseError.Status(), rr.Code)
 		assert.Equal(t, expectedrResponseBody, rr.Body.Bytes())
-		mockUserService.AssertExpectations(t) // Assert that UserService.Get was called
+		mockUserService.AssertExpectations(t) // Assert that UserService.Get was called.
 	})
 }

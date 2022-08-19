@@ -8,12 +8,12 @@ import (
 	"github.com/yachnytskyi/base-go/account/model"
 )
 
-// MockUserRepository is a mock type for model.UserRepository
+// MockUserRepository is a mock type for model.UserRepository.
 type MockUserRepository struct {
 	mock.Mock
 }
 
-// FindById is a mock of UserRepository FindById
+// FindById is a mock of UserRepository FindById.
 func (m *MockUserRepository) FindById(ctx context.Context, uid uuid.UUID) (*model.User, error) {
 	ret := m.Called(ctx, uid)
 
