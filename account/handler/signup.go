@@ -9,9 +9,9 @@ import (
 	"github.com/yachnytskyi/base-go/account/model/apperrors"
 )
 
-// signUpReq is not exported, hence the lowercase name
+// signUpRequest is not exported, hence the lowercase name
 // is is used for validation and json marshalling.
-type signUpReq struct {
+type signUpRequest struct {
 	Email    string `json:"email" binding:"required,email"`
 	Password string `json:"password" binding:"required,gte=6,lte=30"`
 }
@@ -20,7 +20,7 @@ type signUpReq struct {
 func (h *Handler) SignUp(c *gin.Context) {
 	// define a variable to which we'll bind incoming
 	// json body, {email, password}.
-	var req signUpReq
+	var req signUpRequest
 
 	// Bind incoming json to struct and check for validation errors.
 	if ok := bindData(c, &req); !ok {
