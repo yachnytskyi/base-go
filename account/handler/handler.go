@@ -22,7 +22,7 @@ type Config struct {
 	TokenService model.TokenService
 }
 
-// NewHandler initializes the handler with required injected services along with http routes
+// NewHandler initializes the handler with required injected services along with http routes.
 // Does not return as it deals directly with a reference to the gin Engine.
 func NewHandler(c *Config) {
 	// Create a handler (with injected services).
