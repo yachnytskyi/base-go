@@ -8,7 +8,7 @@ import (
 	"github.com/yachnytskyi/base-go/account/model"
 )
 
-// MockUserRepository is a mock type for model.UserRepository.
+// MockUserRepository is a mock type for model.UserRepository
 type MockUserRepository struct {
 	mock.Mock
 }

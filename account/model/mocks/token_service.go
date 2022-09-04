@@ -7,7 +7,7 @@ import (
 	"github.com/yachnytskyi/base-go/account/model"
 )
 
-// MockTokenService is a mock type for model.TokenService.
+// MockTokenService is a mock type for model.TokenService
 type MockTokenService struct {
 	mock.Mock
 }
