@@ -19,7 +19,7 @@ func TestGet(t *testing.T) {
 
 		mockUserResponse := &model.User{
 			UID:      uid,
-			Email:    "kostya.com",
+			Email:    "kostya@kostya.com",
 			Username: "Kostya Kostyan",
 		}
 
