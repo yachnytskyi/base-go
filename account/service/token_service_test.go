@@ -14,20 +14,25 @@ import (
 )
 
 func TestNewPairFromUser(t *testing.T) {
+	var idExpiration int64 = 15 * 60
+	var refreshExpiration int64 = 3 * 24 * 2600
 	private, _ := ioutil.ReadFile("../rsa_private_test.pem")
 	privateKey, _ := jwt.ParseRSAPrivateKeyFromPEM(private)
 	public, _ := ioutil.ReadFile("../rsa_public_test.pem")
 	publicKey, _ := jwt.ParseRSAPublicKeyFromPEM(public)
-	secret := "somerandomtestsecret"
+	secret := "anotsorandomtestsecret"
 
 	// Instantiate a common token service to be used by all tests.
 	tokenService := NewTokenService(&TokenServiceConfig{
-		PrivateKey:    privateKey,
-		PublicKey:     publicKey,
-		RefreshSecret: secret,
+		PrivateKey:               privateKey,
+		PublicKey:                publicKey,
+		RefreshSecret:            secret,
+		IDExpirationSecrets:      idExpiration,
+		RefreshExpirationSecrets: refreshExpiration,
 	})
 
-	// Include the password to make sure it is not serialized since json tag is "-".
+	// Include password to make sure it is not serialized
+	// since json tag is "-".
 	uid, _ := uuid.NewRandom()
 	u := &model.User{
 		UID:      uid,
@@ -43,7 +48,8 @@ func TestNewPairFromUser(t *testing.T) {
 		var s string
 		assert.IsType(t, s, tokenPair.IDToken)
 
-		// Decode the Base64URL encoded string simpler to use jwt library which is already imported.
+		// Decode the Base64URL encoded string
+		// simpler to use jwt library which is already imported.
 		idTokenClaims := &IDTokenCustomClaims{}
 
 		_, err = jwt.ParseWithClaims(tokenPair.IDToken, idTokenClaims, func(token *jwt.Token) (interface{}, error) {
@@ -57,14 +63,14 @@ func TestNewPairFromUser(t *testing.T) {
 			u.UID,
 			u.Email,
 			u.Username,
-			u.ImageUrl,
+			u.ImageURL,
 			u.Website,
 		}
 		actualIDClaims := []interface{}{
 			idTokenClaims.User.UID,
 			idTokenClaims.User.Email,
 			idTokenClaims.User.Username,
-			idTokenClaims.User.ImageUrl,
+			idTokenClaims.User.ImageURL,
 			idTokenClaims.User.Website,
 		}
 
@@ -72,7 +78,7 @@ func TestNewPairFromUser(t *testing.T) {
 		assert.Empty(t, idTokenClaims.User.Password) // Password must never be encoded to json.
 
 		expiresAt := time.Unix(idTokenClaims.StandardClaims.ExpiresAt, 0)
-		expectedExpiresAt := time.Now().Add(15 * time.Minute)
+		expectedExpiresAt := time.Now().Add(time.Duration(idExpiration) * time.Second)
 		assert.WithinDuration(t, expectedExpiresAt, expiresAt, 5*time.Second)
 
 		refreshTokenClaims := &RefreshTokenCustomClaims{}
@@ -82,12 +88,12 @@ func TestNewPairFromUser(t *testing.T) {
 
 		assert.IsType(t, s, tokenPair.RefreshToken)
 
-		// Assert claims on the refresh token.
+		// assert claims on refresh token.
 		assert.NoError(t, err)
 		assert.Equal(t, u.UID, refreshTokenClaims.UID)
 
 		expiresAt = time.Unix(refreshTokenClaims.StandardClaims.ExpiresAt, 0)
-		expectedExpiresAt = time.Now().Add(3 * 24 * time.Hour)
+		expectedExpiresAt = time.Now().Add(time.Duration(refreshExpiration) * time.Second)
 		assert.WithinDuration(t, expectedExpiresAt, expiresAt, 5*time.Second)
 	})
 }

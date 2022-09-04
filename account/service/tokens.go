@@ -18,9 +18,9 @@ type IDTokenCustomClaims struct {
 
 // generateIDToken generates an IDToken which is a jwt with myCustomClaims.
 // Could call this GenerateIDTokenString, but the signature makes this fairly clear.
-func generateIDToken(u *model.User, key *rsa.PrivateKey) (string, error) {
+func generateIDToken(u *model.User, key *rsa.PrivateKey, expiration int64) (string, error) {
 	unixTime := time.Now().Unix()
-	tokenExpiration := unixTime + 60*15 // 15 minutes from current time.
+	tokenExpiration := unixTime + expiration
 
 	claims := IDTokenCustomClaims{
 		User: u,
@@ -31,14 +31,14 @@ func generateIDToken(u *model.User, key *rsa.PrivateKey) (string, error) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
-	signedString, err := token.SignedString(key)
+	signedsString, err := token.SignedString(key)
 
 	if err != nil {
 		log.Println("Failed to sign id token string")
 		return "", err
 	}
 
-	return signedString, nil
+	return signedsString, nil
 }
 
 // RefreshToken holds the actual signed jwt string along with the ID.
@@ -50,18 +50,19 @@ type RefreshToken struct {
 }
 
 // RefreshTokenCustomClaims holds the payload of a refresh token.
-// This can be used to extract user id for subsequent application operations (IE, fetch user in Redis).
+// This can be used to extract user id for subsequent
+// application operations (IE, fetch user in Redis).
 type RefreshTokenCustomClaims struct {
 	UID uuid.UUID `json:"uid"`
 	jwt.StandardClaims
 }
 
-// generateRefreshToken creates a refresh token.
+// generateRefreshToken creates a refresh token
 // The refresh token stores only the user's ID, a string.
-func generateRefreshToken(uid uuid.UUID, key string) (*RefreshToken, error) {
+func generateRefreshToken(uid uuid.UUID, key string, expiration int64) (*RefreshToken, error) {
 	currentTime := time.Now()
-	tokenExp := currentTime.AddDate(0, 0, 3) // 3 days.
-	tokenID, err := uuid.NewRandom()         // v4 uuid in the google uuid lib.
+	tokenExpiration := currentTime.Add(time.Duration(expiration) * time.Second)
+	tokenID, err := uuid.NewRandom() // v4 uuid in the google uuid lib.
 
 	if err != nil {
 		log.Println("Failed to generate refresh token ID")
@@ -72,7 +73,7 @@ func generateRefreshToken(uid uuid.UUID, key string) (*RefreshToken, error) {
 		UID: uid,
 		StandardClaims: jwt.StandardClaims{
 			IssuedAt:  currentTime.Unix(),
-			ExpiresAt: tokenExp.Unix(),
+			ExpiresAt: tokenExpiration.Unix(),
 			Id:        tokenID.String(),
 		},
 	}
@@ -88,6 +89,6 @@ func generateRefreshToken(uid uuid.UUID, key string) (*RefreshToken, error) {
 	return &RefreshToken{
 		SignedString: signedString,
 		ID:           tokenID.String(),
-		ExpiresIn:    tokenExp.Sub(currentTime),
+		ExpiresIn:    tokenExpiration.Sub(currentTime),
 	}, nil
 }
