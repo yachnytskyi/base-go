@@ -2,6 +2,7 @@ package model
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -24,4 +25,11 @@ type TokenService interface {
 type UserRepository interface {
 	FindById(ctx context.Context, uid uuid.UUID) (*User, error)
 	Create(ctx context.Context, u *User) error
+}
+
+// TokenRepository defines methids if expects a repository
+// it interacts with to implement.
+type TokenRepository interface {
+	SetRefreshToken(ctx context.Context, userID string, tokenID string, expiresIn time.Duration) error
+	DeleteRefreshToken(ctx context.Context, userID string, previousTokenID string) error
 }

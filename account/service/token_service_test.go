@@ -2,13 +2,16 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"io/ioutil"
 	"testing"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/yachnytskyi/base-go/account/model"
+	"github.com/yachnytskyi/base-go/account/model/mocks"
 
 	"github.com/dgrijalva/jwt-go"
 )
@@ -22,8 +25,11 @@ func TestNewPairFromUser(t *testing.T) {
 	publicKey, _ := jwt.ParseRSAPublicKeyFromPEM(public)
 	secret := "anotsorandomtestsecret"
 
+	mockTokenRepository := new(mocks.MockTokenRepository)
+
 	// Instantiate a common token service to be used by all tests.
 	tokenService := NewTokenService(&TokenServiceConfig{
+		TokenRepository:          mockTokenRepository,
 		PrivateKey:               privateKey,
 		PublicKey:                publicKey,
 		RefreshSecret:            secret,
@@ -40,10 +46,49 @@ func TestNewPairFromUser(t *testing.T) {
 		Password: "somerandompassword",
 	}
 
+	// Setup mock call responses in setup before t.Run statements.
+	uidErrorCase, _ := uuid.NewRandom()
+	uErrorCase := &model.User{
+		UID:      uidErrorCase,
+		Email:    "failed@failed.com",
+		Password: "somefailedpassword",
+	}
+	previousID := "a_previous_tokenID"
+
+	setSuccessArguments := mock.Arguments{
+		mock.AnythingOfType("*context.emptyCtx"),
+		u.UID.String(),
+		mock.AnythingOfType("string"),
+		mock.AnythingOfType("time.Duration"),
+	}
+
+	setErrorArguments := mock.Arguments{
+		mock.AnythingOfType("*context.emptyCtx"),
+		uidErrorCase.String(),
+		mock.AnythingOfType("string"),
+		mock.AnythingOfType("time.Duration"),
+	}
+
+	deleteWithPreviousIDArguments := mock.Arguments{
+		mock.AnythingOfType("*context.emptyCtx"),
+		u.UID.String(),
+		previousID,
+	}
+
+	// Mock call argument/responses.
+	mockTokenRepository.On("SetRefreshToken", setSuccessArguments...).Return(nil)
+	mockTokenRepository.On("SetRefreshToken", setErrorArguments...).Return(fmt.Errorf("Error setting refresh token"))
+	mockTokenRepository.On("DeleteRefreshToken", deleteWithPreviousIDArguments...).Return(nil)
+
 	t.Run("Returns a token pair with proper values", func(t *testing.T) {
-		ctx := context.TODO()
-		tokenPair, err := tokenService.NewPairFromUser(ctx, u, "")
+		ctx := context.Background()                                        // Updated from context.TODO()
+		tokenPair, err := tokenService.NewPairFromUser(ctx, u, previousID) // Replaced "" with previousID from setup.
 		assert.NoError(t, err)
+
+		// SetRefreshToken should be called with setSuccessArguments.
+		mockTokenRepository.AssertCalled(t, "SetRefreshToken", setSuccessArguments...)
+		// DeleteRefreshToken should not be called since previousID is "".
+		mockTokenRepository.AssertCalled(t, "DeleteRefreshToken", deleteWithPreviousIDArguments...)
 
 		var s string
 		assert.IsType(t, s, tokenPair.IDToken)
@@ -95,5 +140,27 @@ func TestNewPairFromUser(t *testing.T) {
 		expiresAt = time.Unix(refreshTokenClaims.StandardClaims.ExpiresAt, 0)
 		expectedExpiresAt = time.Now().Add(time.Duration(refreshExpiration) * time.Second)
 		assert.WithinDuration(t, expectedExpiresAt, expiresAt, 5*time.Second)
+	})
+
+	t.Run("Error setting refresh token", func(t *testing.T) {
+		ctx := context.Background()
+		_, err := tokenService.NewPairFromUser(ctx, uErrorCase, "")
+		assert.Error(t, err) // Should return an error.
+
+		// SetRefreshToken should be called with setErrorArguments.
+		mockTokenRepository.AssertCalled(t, "SetRefreshToken", setErrorArguments...)
+		// DeleteRefreshToken should not be since SetRefreshToken causes method to return.
+		mockTokenRepository.AssertNotCalled(t, "DeleteRefreshToken")
+	})
+
+	t.Run("Empty string provided for previousID", func(t *testing.T) {
+		ctx := context.Background()
+		_, err := tokenService.NewPairFromUser(ctx, u, "")
+		assert.NoError(t, err)
+
+		// SetRefreshToken should be called with setSuccessArguments.
+		mockTokenRepository.AssertCalled(t, "SetRefreshToken", setSuccessArguments...)
+		// DeleteRefreshToken should not be called since previousID is "".
+		mockTokenRepository.AssertNotCalled(t, "DeleteRefreshToken")
 	})
 }

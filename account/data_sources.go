@@ -1,16 +1,19 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
 
+	"github.com/go-redis/redis/v9"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 )
 
 type dataSources struct {
-	DB *sqlx.DB
+	DB          *sqlx.DB
+	RedisClient *redis.Client
 }
 
 // initDataSources establishes connections to fields in dataSources.
@@ -26,10 +29,10 @@ func initDataSources() (*dataSources, error) {
 	pgDB := os.Getenv("PG_DB")
 	pgSSL := os.Getenv("PG_SSL")
 
-	pgConnString := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s", pgHost, pgPort, pgUser, pgPassword, pgDB, pgSSL)
+	pgConnectionString := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s", pgHost, pgPort, pgUser, pgPassword, pgDB, pgSSL)
 
 	log.Printf("Connecting to Postgresql\n")
-	db, err := sqlx.Open("postgres", pgConnString)
+	db, err := sqlx.Open("postgres", pgConnectionString)
 
 	if err != nil {
 		return nil, fmt.Errorf("error opening db: %w", err)
@@ -40,8 +43,28 @@ func initDataSources() (*dataSources, error) {
 		return nil, fmt.Errorf("error connecting to db: %w", err)
 	}
 
+	// Initialize redis connection.
+	redisHost := os.Getenv("REDIS_HOST")
+	redisPort := os.Getenv("REDIS_PORT")
+
+	log.Printf("Comnnection to Redis\n")
+	redisDB := redis.NewClient(&redis.Options{
+		Addr:     fmt.Sprintf("%s:%s", redisHost, redisPort),
+		Password: "",
+		DB:       0,
+	})
+
+	// Verify redis connection.
+
+	_, err = redisDB.Ping(context.Background()).Result()
+
+	if err != nil {
+		return nil, fmt.Errorf("error connection to redis: %w", err)
+	}
+
 	return &dataSources{
-		DB: db,
+		DB:          db,
+		RedisClient: redisDB,
 	}, nil
 }
 
@@ -49,6 +72,10 @@ func initDataSources() (*dataSources, error) {
 func (d *dataSources) close() error {
 	if err := d.DB.Close(); err != nil {
 		return fmt.Errorf("error closing Postgresql: %w", err)
+	}
+
+	if err := d.RedisClient.Close(); err != nil {
+		return fmt.Errorf("error closing Redis Client: %w", err)
 	}
 
 	return nil
