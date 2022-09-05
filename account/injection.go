@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
@@ -92,11 +93,20 @@ func inject(d *dataSources) (*gin.Engine, error) {
 
 	// Read in ACCOUNT_API_URL.
 	baseURL := os.Getenv("ACCOUNT_API_URL")
+
+	// Read in HANDLER_TIMEOUT.
+	handlerTimeout := os.Getenv("HANDLER_TIMEOUT")
+	handlerTimeoutInt, err := strconv.ParseInt(handlerTimeout, 0, 64)
+	if err != nil {
+		return nil, fmt.Errorf("could not parse HANDLER_TIMEOUT as int: %w", err)
+	}
+
 	handler.NewHandler(&handler.Config{
-		R:            router,
-		UserService:  userService,
-		TokenService: tokenService,
-		BaseURL:      baseURL,
+		R:               router,
+		UserService:     userService,
+		TokenService:    tokenService,
+		BaseURL:         baseURL,
+		TimeoutDuration: time.Duration(time.Duration(handlerTimeoutInt) * time.Second),
 	})
 
 	return router, nil

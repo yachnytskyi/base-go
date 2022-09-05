@@ -1,4 +1,4 @@
 .vscode/settings.json
 
-.env.dev
+# .env.dev
 *.pem
