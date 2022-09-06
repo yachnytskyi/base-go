@@ -53,37 +53,35 @@ func NewHandler(c *Config) {
 
 }
 
-func (h *Handler) SignIn(c *gin.Context) {
-	time.Sleep(6 * time.Second) // To demonstrate a timeout.
-	c.JSON(http.StatusOK, gin.H{
-		"hello": "it's signin",
-	})
-}
-
+// SignOut handler.
 func (h *Handler) SignOut(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"hello": "it's signout",
 	})
 }
 
+// SignOut handler.
 func (h *Handler) Tokens(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"hello": "it's tokens",
 	})
 }
 
+// Image handler.
 func (h *Handler) Image(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"hello": "it's image",
 	})
 }
 
+// DeleteImage handler.
 func (h *Handler) DeleteImage(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"hello": "it's deleteimage",
 	})
 }
 
+// Details handler.
 func (h *Handler) Details(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"hello": "it's details",
