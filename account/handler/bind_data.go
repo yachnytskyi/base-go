@@ -18,7 +18,7 @@ type invalidArgument struct {
 }
 
 // bindData is the helper function, returns false if data is not bound.
-func bindData(c *gin.Context, req interface{}) bool {
+func bindData(c *gin.Context, request interface{}) bool {
 	if c.ContentType() != "application/json" {
 		message := fmt.Sprintf("%s only accepts Content-Type application/json", c.FullPath())
 
@@ -31,7 +31,7 @@ func bindData(c *gin.Context, req interface{}) bool {
 	}
 
 	// bindData incoming json to struct and check for validation errors.
-	if err := c.ShouldBind(req); err != nil {
+	if err := c.ShouldBind(request); err != nil {
 		log.Printf("Error binding data: %+v\n", err)
 
 		if errs, ok := err.(validator.ValidationErrors); ok {

@@ -25,7 +25,7 @@ func TestSignUp(t *testing.T) {
 		mockUserService.On("SignUp", mock.AnythingOfType("*context.emptyCtx"), mock.AnythingOfType("*model.User")).Return(nil)
 
 		// A response recorder for getting written http response.
-		rr := httptest.NewRecorder()
+		responseRecorder := httptest.NewRecorder()
 
 		// Do not need a middleware as we don't yet have the authorized user.
 		router := gin.Default()
@@ -47,9 +47,9 @@ func TestSignUp(t *testing.T) {
 
 		request.Header.Set("Content-Type", "application/json")
 
-		router.ServeHTTP(rr, request)
+		router.ServeHTTP(responseRecorder, request)
 
-		assert.Equal(t, 400, rr.Code)
+		assert.Equal(t, 400, responseRecorder.Code)
 		mockUserService.AssertNotCalled(t, "SignUp")
 	})
 
@@ -59,7 +59,7 @@ func TestSignUp(t *testing.T) {
 		mockUserService.On("SignUp", mock.AnythingOfType("*context.emptyCtx"), mock.AnythingOfType("*model.User")).Return(nil)
 
 		// A response recorder for getting written http response.
-		rr := httptest.NewRecorder()
+		responseRecorder := httptest.NewRecorder()
 
 		// Do not need a middleware as we don't yet have the authorized user.
 		router := gin.Default()
@@ -82,9 +82,9 @@ func TestSignUp(t *testing.T) {
 
 		request.Header.Set("Content-Type", "application/json")
 
-		router.ServeHTTP(rr, request)
+		router.ServeHTTP(responseRecorder, request)
 
-		assert.Equal(t, 400, rr.Code)
+		assert.Equal(t, 400, responseRecorder.Code)
 		mockUserService.AssertNotCalled(t, "SignUp")
 	})
 
@@ -94,7 +94,7 @@ func TestSignUp(t *testing.T) {
 		mockUserService.On("SignUp", mock.AnythingOfType("*context.emptyCtx"), mock.AnythingOfType("*model.User")).Return(nil)
 
 		// A response recorder for getting written http response.
-		rr := httptest.NewRecorder()
+		responseRecorder := httptest.NewRecorder()
 
 		// Do not need a middleware as we don't yet have the authorized user.
 		router := gin.Default()
@@ -117,9 +117,9 @@ func TestSignUp(t *testing.T) {
 
 		request.Header.Set("Content-Type", "application/json")
 
-		router.ServeHTTP(rr, request)
+		router.ServeHTTP(responseRecorder, request)
 
-		assert.Equal(t, 400, rr.Code)
+		assert.Equal(t, 400, responseRecorder.Code)
 		mockUserService.AssertNotCalled(t, "SignUp")
 	})
 
@@ -129,7 +129,7 @@ func TestSignUp(t *testing.T) {
 		mockUserService.On("SignUp", mock.AnythingOfType("*context.emptyCtx"), mock.AnythingOfType("*model.User")).Return(nil)
 
 		// A response recorder for getting written http response.
-		rr := httptest.NewRecorder()
+		responseRecorder := httptest.NewRecorder()
 
 		// Do not need a middleware as we don't yet have the authorized user.
 		router := gin.Default()
@@ -152,9 +152,9 @@ func TestSignUp(t *testing.T) {
 
 		request.Header.Set("Content-Type", "application/json")
 
-		router.ServeHTTP(rr, request)
+		router.ServeHTTP(responseRecorder, request)
 
-		assert.Equal(t, 400, rr.Code)
+		assert.Equal(t, 400, responseRecorder.Code)
 		mockUserService.AssertNotCalled(t, "SignUp")
 	})
 
@@ -168,7 +168,7 @@ func TestSignUp(t *testing.T) {
 		mockUserService.On("SignUp", mock.AnythingOfType("*context.emptyCtx"), u).Return(apperrors.NewConflict("User Already Exists", u.Email))
 
 		// A response recorder for getting written http response.
-		rr := httptest.NewRecorder()
+		responseRecorder := httptest.NewRecorder()
 
 		// Do not need a middleware as we don't yet have the authorized user.
 		router := gin.Default()
@@ -191,9 +191,9 @@ func TestSignUp(t *testing.T) {
 
 		request.Header.Set("Content-Type", "application/json")
 
-		router.ServeHTTP(rr, request)
+		router.ServeHTTP(responseRecorder, request)
 
-		assert.Equal(t, 409, rr.Code)
+		assert.Equal(t, 409, responseRecorder.Code)
 		mockUserService.AssertExpectations(t)
 	})
 
@@ -215,7 +215,7 @@ func TestSignUp(t *testing.T) {
 		mockTokenService.On("NewPairFromUser", mock.AnythingOfType("*context.emptyCtx"), u, "").Return(mockTokenResponse, nil)
 
 		// A response recorder for getting a written http response.
-		rr := httptest.NewRecorder()
+		responseRecorder := httptest.NewRecorder()
 
 		// Don't need a middleware as we don't yet have an authorized user.
 		router := gin.Default()
@@ -239,15 +239,15 @@ func TestSignUp(t *testing.T) {
 
 		request.Header.Set("Content-Type", "application/json")
 
-		router.ServeHTTP(rr, request)
+		router.ServeHTTP(responseRecorder, request)
 
 		expectedResponseBody, err := json.Marshal(gin.H{
 			"tokens": mockTokenResponse,
 		})
 		assert.NoError(t, err)
 
-		assert.Equal(t, http.StatusCreated, rr.Code)
-		assert.Equal(t, expectedResponseBody, rr.Body.Bytes())
+		assert.Equal(t, http.StatusCreated, responseRecorder.Code)
+		assert.Equal(t, expectedResponseBody, responseRecorder.Body.Bytes())
 
 		mockUserService.AssertExpectations(t)
 		mockTokenService.AssertExpectations(t)
@@ -268,7 +268,7 @@ func TestSignUp(t *testing.T) {
 		mockTokenService.On("NewPairFromUser", mock.AnythingOfType("*context.emptyCtx"), u, "").Return(nil, mockErrorResponse)
 
 		// A response recorder for getting a written http response.
-		rr := httptest.NewRecorder()
+		responseRecorder := httptest.NewRecorder()
 
 		// Don't need a middleware as we don't yet have an authorized user.
 		router := gin.Default()
@@ -292,15 +292,15 @@ func TestSignUp(t *testing.T) {
 
 		request.Header.Set("Content-Type", "application/json")
 
-		router.ServeHTTP(rr, request)
+		router.ServeHTTP(responseRecorder, request)
 
 		expectedResponseBody, err := json.Marshal(gin.H{
 			"error": mockErrorResponse,
 		})
 		assert.NoError(t, err)
 
-		assert.Equal(t, mockErrorResponse.Status(), rr.Code)
-		assert.Equal(t, expectedResponseBody, rr.Body.Bytes())
+		assert.Equal(t, mockErrorResponse.Status(), responseRecorder.Code)
+		assert.Equal(t, expectedResponseBody, responseRecorder.Body.Bytes())
 
 		mockUserService.AssertExpectations(t)
 		mockTokenService.AssertExpectations(t)

@@ -33,7 +33,7 @@ func TestMe(t *testing.T) {
 		mockUserService.On("Get", mock.AnythingOfType("*context.emptyCtx"), uid).Return(mockUserResp, nil)
 
 		// A response recorder for etting written http response.
-		rr := httptest.NewRecorder()
+		responseRecorder := httptest.NewRecorder()
 
 		// Use a middleware to set context for test
 		// the only claims we care about in this test
@@ -53,15 +53,15 @@ func TestMe(t *testing.T) {
 		request, err := http.NewRequest(http.MethodGet, "/me", nil)
 		assert.NoError(t, err)
 
-		router.ServeHTTP(rr, request)
+		router.ServeHTTP(responseRecorder, request)
 
 		expectedResponseBody, err := json.Marshal(gin.H{
 			"user": mockUserResp,
 		})
 		assert.NoError(t, err)
 
-		assert.Equal(t, 200, rr.Code)
-		assert.Equal(t, expectedResponseBody, rr.Body.Bytes())
+		assert.Equal(t, 200, responseRecorder.Code)
+		assert.Equal(t, expectedResponseBody, responseRecorder.Body.Bytes())
 		mockUserService.AssertExpectations(t) // Assert that UserService.Get was called.
 	})
 
@@ -70,7 +70,7 @@ func TestMe(t *testing.T) {
 		mockUserService.On("Get", mock.Anything, mock.Anything).Return(nil, nil)
 
 		// A response recorder for getting written http response.
-		rr := httptest.NewRecorder()
+		responseRecorder := httptest.NewRecorder()
 
 		// Do not append user to context.
 		router := gin.Default()
@@ -82,9 +82,9 @@ func TestMe(t *testing.T) {
 		request, err := http.NewRequest(http.MethodGet, "/me", nil)
 		assert.NoError(t, err)
 
-		router.ServeHTTP(rr, request)
+		router.ServeHTTP(responseRecorder, request)
 
-		assert.Equal(t, 500, rr.Code)
+		assert.Equal(t, 500, responseRecorder.Code)
 		mockUserService.AssertNotCalled(t, "Get", mock.Anything)
 	})
 
@@ -94,7 +94,7 @@ func TestMe(t *testing.T) {
 		mockUserService.On("Get", mock.Anything, uid).Return(nil, fmt.Errorf("Some error down call chain"))
 
 		// A response recorder for getting written http response.
-		rr := httptest.NewRecorder()
+		responseRecorder := httptest.NewRecorder()
 
 		router := gin.Default()
 		router.Use(func(c *gin.Context) {
@@ -112,7 +112,7 @@ func TestMe(t *testing.T) {
 		request, err := http.NewRequest(http.MethodGet, "/me", nil)
 		assert.NoError(t, err)
 
-		router.ServeHTTP(rr, request)
+		router.ServeHTTP(responseRecorder, request)
 
 		expectedResponseError := apperrors.NewNotFound("user", uid.String())
 
@@ -121,8 +121,8 @@ func TestMe(t *testing.T) {
 		})
 		assert.NoError(t, err)
 
-		assert.Equal(t, expectedResponseError.Status(), rr.Code)
-		assert.Equal(t, expectedrResponseBody, rr.Body.Bytes())
+		assert.Equal(t, expectedResponseError.Status(), responseRecorder.Code)
+		assert.Equal(t, expectedrResponseBody, responseRecorder.Body.Bytes())
 		mockUserService.AssertExpectations(t) // Assert that UserService.Get was called.
 	})
 }

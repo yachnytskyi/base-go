@@ -20,16 +20,16 @@ type signUpRequest struct {
 func (h *Handler) SignUp(c *gin.Context) {
 	// define a variable to which we'll bind incoming
 	// json body, {email, password}.
-	var req signUpRequest
+	var jsonRequest signUpRequest
 
 	// Bind incoming json to struct and check for validation errors.
-	if ok := bindData(c, &req); !ok {
+	if ok := bindData(c, &jsonRequest); !ok {
 		return
 	}
 
 	u := &model.User{
-		Email:    req.Email,
-		Password: req.Password,
+		Email:    jsonRequest.Email,
+		Password: jsonRequest.Password,
 	}
 
 	ctx := c.Request.Context()
