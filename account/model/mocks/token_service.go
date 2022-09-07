@@ -31,3 +31,23 @@ func (m *MockTokenService) NewPairFromUser(ctx context.Context, u *model.User, r
 
 	return r0, r1
 }
+
+// ValidateIDToken mocks concrete ValidateIDToken.
+func (m *MockTokenService) ValidateIDToken(tokenString string) (*model.User, error) {
+	ret := m.Called(tokenString)
+
+	// First value passed to "Return".
+	var r0 *model.User
+	if ret.Get(0) != nil {
+		// We can just return this if we know we won't be passing the function to "Return".
+		r0 = ret.Get(0).(*model.User)
+	}
+
+	var r1 error
+
+	if ret.Get(1) != nil {
+		r1 = ret.Get(1).(error)
+	}
+
+	return r0, r1
+}
