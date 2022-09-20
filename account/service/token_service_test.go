@@ -11,6 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/yachnytskyi/base-go/account/model"
+	"github.com/yachnytskyi/base-go/account/model/apperrors"
 	"github.com/yachnytskyi/base-go/account/model/mocks"
 
 	"github.com/dgrijalva/jwt-go"
@@ -163,4 +164,67 @@ func TestNewPairFromUser(t *testing.T) {
 		// DeleteRefreshToken should not be called since previousID is "".
 		mockTokenRepository.AssertNotCalled(t, "DeleteRefreshToken")
 	})
+}
+
+func TestValidateIDToken(t *testing.T) {
+	var idExpiration int64 = 15 * 60
+
+	private, _ := ioutil.ReadFile("../rsa_private_test.pem")
+	privateKey, _ := jwt.ParseRSAPrivateKeyFromPEM(private)
+	public, _ := ioutil.ReadFile("../rsa_public_test.pem")
+	publicKey, _ := jwt.ParseRSAPublicKeyFromPEM(public)
+
+	// Instantiate a common token service to be used by all tests.
+	tokenService := NewTokenService(&TokenServiceConfig{
+		PrivateKey:          privateKey,
+		PublicKey:           publicKey,
+		IDExpirationSecrets: idExpiration,
+	})
+
+	// Include a password to make sure it is not serialized
+	// since json tag is "-".
+	uid, _ := uuid.NewRandom()
+	user := &model.User{
+		UID:      uid,
+		Email:    "kostya@kostya.com",
+		Password: "somerandompassword",
+	}
+
+	t.Run("Valid token", func(t *testing.T) {
+		// Maybe not the best approach to defend on utility method.
+		// Token will be valid for 15 minutes.
+		signedString, _ := generateIDToken(user, privateKey, idExpiration)
+
+		userFromToken, err := tokenService.ValidateIDToken(signedString)
+		assert.NoError(t, err)
+
+		assert.ElementsMatch(
+			t,
+			[]interface{}{user.Email, user.Username, user.UID, user.Website, user.ImageURL},
+			[]interface{}{userFromToken.Email, userFromToken.Username, userFromToken.UID, userFromToken.Website, userFromToken.ImageURL},
+		)
+	})
+
+	t.Run("Expired token", func(t *testing.T) {
+		// Maybe not the best approach to defend on utility method.
+		// Token will be valid for 15 minutes.
+		signedString, _ := generateIDToken(user, privateKey, -1) // Expired one second ago.
+
+		expectedError := apperrors.NewAuthorization("Unable to verify the user from idToken")
+
+		_, err := tokenService.ValidateIDToken(signedString)
+		assert.EqualError(t, err, expectedError.Message)
+	})
+
+	t.Run("Invalid signature", func(t *testing.T) {
+		// Maybe not the best approach to defend on utility method.
+		// Token will be valid for 15 minutes.
+		signedString, _ := generateIDToken(user, privateKey, -1) // Expired one second ago.
+
+		expectedError := apperrors.NewAuthorization("Unable to verify the user from idToken")
+
+		_, err := tokenService.ValidateIDToken(signedString)
+		assert.EqualError(t, err, expectedError.Message)
+	})
+
 }
