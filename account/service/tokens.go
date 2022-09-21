@@ -11,8 +11,8 @@ import (
 	"github.com/yachnytskyi/base-go/account/model"
 )
 
-// IDTokenCustomClaims holds structure of jwt claims of idToken.
-type IDTokenCustomClaims struct {
+// idTokenCustomClaims holds structure of jwt claims of idToken.
+type idTokenCustomClaims struct {
 	User *model.User `json:"user"`
 	jwt.StandardClaims
 }
@@ -23,7 +23,7 @@ func generateIDToken(u *model.User, key *rsa.PrivateKey, expiration int64) (stri
 	unixTime := time.Now().Unix()
 	tokenExpiration := unixTime + expiration
 
-	claims := IDTokenCustomClaims{
+	claims := idTokenCustomClaims{
 		User: u,
 		StandardClaims: jwt.StandardClaims{
 			IssuedAt:  unixTime,
@@ -42,25 +42,25 @@ func generateIDToken(u *model.User, key *rsa.PrivateKey, expiration int64) (stri
 	return signedsString, nil
 }
 
-// RefreshToken holds the actual signed jwt string along with the ID.
+// refreshTokenData holds the actual signed jwt string along with the ID.
 // We return the id so it can be used without re-parsing the JWT from signed string.
-type RefreshToken struct {
+type refreshTokenData struct {
 	SignedString string
-	ID           string
+	ID           uuid.UUID
 	ExpiresIn    time.Duration
 }
 
-// RefreshTokenCustomClaims holds the payload of a refresh token.
+// refreshTokenCustomClaims holds the payload of a refresh token.
 // This can be used to extract user id for subsequent
 // application operations (IE, fetch user in Redis).
-type RefreshTokenCustomClaims struct {
+type refreshTokenCustomClaims struct {
 	UID uuid.UUID `json:"uid"`
 	jwt.StandardClaims
 }
 
 // generateRefreshToken creates a refresh token
 // The refresh token stores only the user's ID, a string.
-func generateRefreshToken(uid uuid.UUID, key string, expiration int64) (*RefreshToken, error) {
+func generateRefreshToken(uid uuid.UUID, key string, expiration int64) (*refreshTokenData, error) {
 	currentTime := time.Now()
 	tokenExpiration := currentTime.Add(time.Duration(expiration) * time.Second)
 	tokenID, err := uuid.NewRandom() // v4 uuid in the google uuid lib.
@@ -70,7 +70,7 @@ func generateRefreshToken(uid uuid.UUID, key string, expiration int64) (*Refresh
 		return nil, err
 	}
 
-	claims := RefreshTokenCustomClaims{
+	claims := refreshTokenCustomClaims{
 		UID: uid,
 		StandardClaims: jwt.StandardClaims{
 			IssuedAt:  currentTime.Unix(),
@@ -87,16 +87,16 @@ func generateRefreshToken(uid uuid.UUID, key string, expiration int64) (*Refresh
 		return nil, err
 	}
 
-	return &RefreshToken{
+	return &refreshTokenData{
 		SignedString: signedString,
-		ID:           tokenID.String(),
+		ID:           tokenID,
 		ExpiresIn:    tokenExpiration.Sub(currentTime),
 	}, nil
 }
 
 // validateIDToken returns the token's claims if the token is valid.
-func validateIDToken(tokenString string, key *rsa.PublicKey) (*IDTokenCustomClaims, error) {
-	claims := &IDTokenCustomClaims{}
+func validateIDToken(tokenString string, key *rsa.PublicKey) (*idTokenCustomClaims, error) {
+	claims := &idTokenCustomClaims{}
 
 	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
 		return key, nil
@@ -111,7 +111,7 @@ func validateIDToken(tokenString string, key *rsa.PublicKey) (*IDTokenCustomClai
 		return nil, fmt.Errorf("ID token is invalid")
 	}
 
-	claims, ok := token.Claims.(*IDTokenCustomClaims)
+	claims, ok := token.Claims.(*idTokenCustomClaims)
 
 	if !ok {
 		return nil, fmt.Errorf("ID token valid bud could not parse claims")

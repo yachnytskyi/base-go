@@ -67,7 +67,7 @@ func (s *tokenService) NewPairFromUser(ctx context.Context, u *model.User, previ
 	}
 
 	// Set freshly minted refresh token to valid list.
-	if err := s.TokenRepository.SetRefreshToken(ctx, u.UID.String(), refreshToken.ID, refreshToken.ExpiresIn); err != nil {
+	if err := s.TokenRepository.SetRefreshToken(ctx, u.UID.String(), refreshToken.ID.String(), refreshToken.ExpiresIn); err != nil {
 		log.Printf("Error storing tokedID for uid: %v. Error: %v\n", u.UID, err.Error())
 		return nil, apperrors.NewInternal()
 	}
@@ -80,8 +80,8 @@ func (s *tokenService) NewPairFromUser(ctx context.Context, u *model.User, previ
 	}
 
 	return &model.TokenPair{
-		IDToken:      idToken,
-		RefreshToken: refreshToken.SignedString,
+		IDToken:      model.IDToken{SignedString: idToken},
+		RefreshToken: model.RefreshToken{SignedString: refreshToken.SignedString, ID: refreshToken.ID, UID: u.UID},
 	}, nil
 }
 
