@@ -62,13 +62,6 @@ func (h *Handler) SignOut(c *gin.Context) {
 	})
 }
 
-// SignOut handler.
-func (h *Handler) Tokens(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
-		"hello": "it's tokens",
-	})
-}
-
 // Image handler.
 func (h *Handler) Image(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
