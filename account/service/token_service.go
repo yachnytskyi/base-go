@@ -95,7 +95,7 @@ func (s *tokenService) ValidateIDToken(tokenString string) (*model.User, error) 
 	// We will just return unauthorized error in all instances of failing to verify the user.
 	if err != nil {
 		log.Printf("Unable to validate or parse idToken - Error: %v\n", err)
-		return nil, apperrors.NewAuthorization("Unable to verify user from idToken")
+		return nil, apperrors.NewAuthorization("Unable to verify the user from the idToken")
 	}
 
 	return claims.User, nil
@@ -110,7 +110,7 @@ func (s *tokenService) ValidateRefreshToken(tokenString string) (*model.RefreshT
 	// We will just return unauthorized error in all instances of failing to verify the user.
 	if err != nil {
 		log.Printf("Unable to validate or parse refreshToken for token string: %s\n%v\n", tokenString, err)
-		return nil, apperrors.NewAuthorization("Unable to verify user from refresh token")
+		return nil, apperrors.NewAuthorization("Unable to verify the user from the refresh token")
 	}
 
 	// Standard claims store ID as a string. I want "model" to be our string

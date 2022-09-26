@@ -24,7 +24,7 @@ func TestNewPairFromUser(t *testing.T) {
 	privateKey, _ := jwt.ParseRSAPrivateKeyFromPEM(private)
 	public, _ := ioutil.ReadFile("../rsa_public_test.pem")
 	publicKey, _ := jwt.ParseRSAPublicKeyFromPEM(public)
-	secret := "anotsorandomtestsecret"
+	secret := "anothersomerandomtestsecret"
 
 	mockTokenRepository := new(mocks.MockTokenRepository)
 
@@ -40,39 +40,39 @@ func TestNewPairFromUser(t *testing.T) {
 
 	// Include password to make sure it is not serialized
 	// since json tag is "-".
-	uid, _ := uuid.NewRandom()
-	u := &model.User{
-		UID:      uid,
+	userID, _ := uuid.NewRandom()
+	user := &model.User{
+		UserID:   userID,
 		Email:    "kostya@kostya.com",
 		Password: "somerandompassword",
 	}
 
 	// Setup mock call responses in setup before t.Run statements.
-	uidErrorCase, _ := uuid.NewRandom()
-	uErrorCase := &model.User{
-		UID:      uidErrorCase,
+	userIDErrorCase, _ := uuid.NewRandom()
+	userErrorCase := &model.User{
+		UserID:   userIDErrorCase,
 		Email:    "failed@failed.com",
-		Password: "somefailedpassword",
+		Password: "somerfailedpassword",
 	}
 	previousID := "a_previous_tokenID"
 
 	setSuccessArguments := mock.Arguments{
 		mock.AnythingOfType("*context.emptyCtx"),
-		u.UID.String(),
+		user.UserID.String(),
 		mock.AnythingOfType("string"),
 		mock.AnythingOfType("time.Duration"),
 	}
 
 	setErrorArguments := mock.Arguments{
 		mock.AnythingOfType("*context.emptyCtx"),
-		uidErrorCase.String(),
+		userIDErrorCase.String(),
 		mock.AnythingOfType("string"),
 		mock.AnythingOfType("time.Duration"),
 	}
 
 	deleteWithPreviousIDArguments := mock.Arguments{
 		mock.AnythingOfType("*context.emptyCtx"),
-		u.UID.String(),
+		user.UserID.String(),
 		previousID,
 	}
 
@@ -82,13 +82,13 @@ func TestNewPairFromUser(t *testing.T) {
 	mockTokenRepository.On("DeleteRefreshToken", deleteWithPreviousIDArguments...).Return(nil)
 
 	t.Run("Returns a token pair with proper values", func(t *testing.T) {
-		ctx := context.Background()                                        // Updated from context.TODO()
-		tokenPair, err := tokenService.NewPairFromUser(ctx, u, previousID) // Replaced "" with previousID from setup.
+		ctx := context.Background()                                           // Updated from context.TODO().
+		tokenPair, err := tokenService.NewPairFromUser(ctx, user, previousID) // Replaced "" with previousID from setup.
 		assert.NoError(t, err)
 
 		// SetRefreshToken should be called with setSuccessArguments.
 		mockTokenRepository.AssertCalled(t, "SetRefreshToken", setSuccessArguments...)
-		// DeleteRefreshToken should not be called since previousID is "".
+		// DeleteRefreshToken should be called since previousID is not empty.
 		mockTokenRepository.AssertCalled(t, "DeleteRefreshToken", deleteWithPreviousIDArguments...)
 
 		var s string
@@ -106,14 +106,14 @@ func TestNewPairFromUser(t *testing.T) {
 
 		// Assert claims on idToken.
 		expectedClaims := []interface{}{
-			u.UID,
-			u.Email,
-			u.Username,
-			u.ImageURL,
-			u.Website,
+			user.UserID,
+			user.Email,
+			user.Username,
+			user.ImageURL,
+			user.Website,
 		}
 		actualIDClaims := []interface{}{
-			idTokenClaims.User.UID,
+			idTokenClaims.User.UserID,
 			idTokenClaims.User.Email,
 			idTokenClaims.User.Username,
 			idTokenClaims.User.ImageURL,
@@ -121,7 +121,7 @@ func TestNewPairFromUser(t *testing.T) {
 		}
 
 		assert.ElementsMatch(t, expectedClaims, actualIDClaims)
-		assert.Empty(t, idTokenClaims.User.Password) // Password must never be encoded to json.
+		assert.Empty(t, idTokenClaims.User.Password) // Password should never be encoded to json.
 
 		expiresAt := time.Unix(idTokenClaims.StandardClaims.ExpiresAt, 0)
 		expectedExpiresAt := time.Now().Add(time.Duration(idExpiration) * time.Second)
@@ -134,9 +134,9 @@ func TestNewPairFromUser(t *testing.T) {
 
 		assert.IsType(t, s, tokenPair.RefreshToken.SignedString)
 
-		// assert claims on refresh token.
+		// Assert claims on a refresh token.
 		assert.NoError(t, err)
-		assert.Equal(t, u.UID, refreshTokenClaims.UID)
+		assert.Equal(t, user.UserID, refreshTokenClaims.UserID)
 
 		expiresAt = time.Unix(refreshTokenClaims.StandardClaims.ExpiresAt, 0)
 		expectedExpiresAt = time.Now().Add(time.Duration(refreshExpiration) * time.Second)
@@ -145,7 +145,7 @@ func TestNewPairFromUser(t *testing.T) {
 
 	t.Run("Error setting refresh token", func(t *testing.T) {
 		ctx := context.Background()
-		_, err := tokenService.NewPairFromUser(ctx, uErrorCase, "")
+		_, err := tokenService.NewPairFromUser(ctx, userErrorCase, "")
 		assert.Error(t, err) // Should return an error.
 
 		// SetRefreshToken should be called with setErrorArguments.
@@ -156,13 +156,42 @@ func TestNewPairFromUser(t *testing.T) {
 
 	t.Run("Empty string provided for previousID", func(t *testing.T) {
 		ctx := context.Background()
-		_, err := tokenService.NewPairFromUser(ctx, u, "")
+		_, err := tokenService.NewPairFromUser(ctx, user, "")
 		assert.NoError(t, err)
 
 		// SetRefreshToken should be called with setSuccessArguments.
 		mockTokenRepository.AssertCalled(t, "SetRefreshToken", setSuccessArguments...)
-		// DeleteRefreshToken should not be called since previousID is "".
+		// DeleteRefreshToken should not be called since prevID is "".
 		mockTokenRepository.AssertNotCalled(t, "DeleteRefreshToken")
+	})
+
+	t.Run("Previous token not in a repository", func(t *testing.T) {
+		ctx := context.Background()
+		userID, _ := uuid.NewRandom()
+		user := &model.User{
+			UserID: userID,
+		}
+
+		tokenIDNotInRepo := "not_in_token_repo"
+
+		deleteArgs := mock.Arguments{
+			ctx,
+			user.UserID.String(),
+			tokenIDNotInRepo,
+		}
+
+		mockError := apperrors.NewAuthorization("Invalid refresh token")
+		mockTokenRepository.On("DeleteRefreshToken", deleteArgs...).Return(mockError)
+
+		_, err := tokenService.NewPairFromUser(ctx, user, tokenIDNotInRepo)
+		assert.Error(t, err)
+
+		appError, ok := err.(*apperrors.Error)
+
+		assert.True(t, ok)
+		assert.Equal(t, apperrors.Authorization, appError.Type)
+		mockTokenRepository.AssertCalled(t, "DeleteRefreshToken", deleteArgs...) // Should be called with invalid arguments.
+		mockTokenRepository.AssertNotCalled(t, "SetRefreshToken")                // Should not be called, because we don't delete the previous refresh token.
 	})
 }
 
@@ -181,17 +210,17 @@ func TestValidateIDToken(t *testing.T) {
 		IDExpirationSecrets: idExpiration,
 	})
 
-	// Include a password to make sure it is not serialized
+	// Include password to make sure it is not serialized
 	// since json tag is "-".
-	uid, _ := uuid.NewRandom()
+	userID, _ := uuid.NewRandom()
 	user := &model.User{
-		UID:      uid,
+		UserID:   userID,
 		Email:    "kostya@kostya.com",
 		Password: "somerandompassword",
 	}
 
 	t.Run("Valid token", func(t *testing.T) {
-		// Maybe not the best approach to defend on utility method.
+		// Maybe not the best approach to depend on utility method.
 		// Token will be valid for 15 minutes.
 		signedString, _ := generateIDToken(user, privateKey, idExpiration)
 
@@ -200,31 +229,67 @@ func TestValidateIDToken(t *testing.T) {
 
 		assert.ElementsMatch(
 			t,
-			[]interface{}{user.Email, user.Username, user.UID, user.Website, user.ImageURL},
-			[]interface{}{userFromToken.Email, userFromToken.Username, userFromToken.UID, userFromToken.Website, userFromToken.ImageURL},
+			[]interface{}{user.Email, user.Username, user.UserID, user.Website, user.ImageURL},
+			[]interface{}{userFromToken.Email, userFromToken.Username, userFromToken.UserID, userFromToken.Website, userFromToken.ImageURL},
 		)
 	})
 
 	t.Run("Expired token", func(t *testing.T) {
-		// Maybe not the best approach to defend on utility method.
+		// Maybe not the best approach to depend on utility method.
 		// Token will be valid for 15 minutes.
 		signedString, _ := generateIDToken(user, privateKey, -1) // Expired one second ago.
 
-		expectedError := apperrors.NewAuthorization("Unable to verify the user from idToken")
+		expectedError := apperrors.NewAuthorization("Unable to verify the user from the idToken")
 
 		_, err := tokenService.ValidateIDToken(signedString)
 		assert.EqualError(t, err, expectedError.Message)
 	})
 
 	t.Run("Invalid signature", func(t *testing.T) {
-		// Maybe not the best approach to defend on utility method.
-		// Token will be valid for 15 minutes.
+		// Maybe not the best approach to depend on utility method.
+		// Token won't be valid.
 		signedString, _ := generateIDToken(user, privateKey, -1) // Expired one second ago.
 
-		expectedError := apperrors.NewAuthorization("Unable to verify the user from idToken")
+		expectedError := apperrors.NewAuthorization("Unable to verify the user from the idToken")
 
 		_, err := tokenService.ValidateIDToken(signedString)
 		assert.EqualError(t, err, expectedError.Message)
 	})
 
+	// TODO - Add other invalid token types (maybe in the future).
+}
+
+func TestValidateRefreshToken(t *testing.T) {
+	var refreshExpiration int64 = 3 * 24 * 2600
+	secret := "anothersomerandomtestsecret"
+
+	tokenService := NewTokenService(&TokenServiceConfig{
+		RefreshSecret:            secret,
+		RefreshExpirationSecrets: refreshExpiration,
+	})
+
+	userID, _ := uuid.NewRandom()
+	user := &model.User{
+		UserID:   userID,
+		Email:    "kostya@kostya.com",
+		Password: "somerandomsecret",
+	}
+
+	t.Run("Valid token", func(t *testing.T) {
+		testRefreshToken, _ := generateRefreshToken(user.UserID, secret, refreshExpiration)
+
+		validatedRefreshToken, err := tokenService.ValidateRefreshToken(testRefreshToken.SignedString)
+		assert.NoError(t, err)
+
+		assert.Equal(t, user.UserID, validatedRefreshToken.UserID)
+		assert.Equal(t, testRefreshToken.SignedString, validatedRefreshToken.SignedString)
+	})
+	t.Run("Expired token", func(t *testing.T) {
+		testRefreshToken, _ := generateRefreshToken(user.UserID, secret, -1)
+
+		expectedError := apperrors.NewAuthorization("Unable to verify the user from the refresh token")
+
+		_, err := tokenService.ValidateRefreshToken(testRefreshToken.SignedString)
+		assert.EqualError(t, err, expectedError.Message)
+	})
 }
