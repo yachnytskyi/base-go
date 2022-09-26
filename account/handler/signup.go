@@ -27,13 +27,13 @@ func (h *Handler) SignUp(c *gin.Context) {
 		return
 	}
 
-	u := &model.User{
+	user := &model.User{
 		Email:    jsonRequest.Email,
 		Password: jsonRequest.Password,
 	}
 
 	ctx := c.Request.Context()
-	err := h.UserService.SignUp(ctx, u)
+	err := h.UserService.SignUp(ctx, user)
 
 	if err != nil {
 		log.Printf("Failed to sign up the user: %v\n", err.Error())
@@ -44,7 +44,7 @@ func (h *Handler) SignUp(c *gin.Context) {
 	}
 
 	// Create token pair as strings.
-	tokens, err := h.TokenService.NewPairFromUser(ctx, u, "")
+	tokens, err := h.TokenService.NewPairFromUser(ctx, user, "")
 
 	if err != nil {
 		log.Printf("Failed to create tokens for user: %v\n", err.Error())

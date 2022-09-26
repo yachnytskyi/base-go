@@ -19,12 +19,12 @@ type idTokenCustomClaims struct {
 
 // generateIDToken generates an IDToken which is a jwt with myCustomClaims.
 // Could call this GenerateIDTokenString, but the signature makes this fairly clear.
-func generateIDToken(u *model.User, key *rsa.PrivateKey, expiration int64) (string, error) {
+func generateIDToken(user *model.User, key *rsa.PrivateKey, expiration int64) (string, error) {
 	unixTime := time.Now().Unix()
 	tokenExpiration := unixTime + expiration
 
 	claims := idTokenCustomClaims{
-		User: u,
+		User: user,
 		StandardClaims: jwt.StandardClaims{
 			IssuedAt:  unixTime,
 			ExpiresAt: tokenExpiration,
@@ -54,13 +54,13 @@ type refreshTokenData struct {
 // This can be used to extract a user id for subsequent
 // application operations (IE, fetch user in Redis)
 type refreshTokenCustomClaims struct {
-	UID uuid.UUID `json:"uid"`
+	UserID uuid.UUID `json:"userID"`
 	jwt.StandardClaims
 }
 
 // generateRefreshToken creates a refresh token.
 // The refresh token stores only the user's ID, a string.
-func generateRefreshToken(uid uuid.UUID, key string, exp int64) (*refreshTokenData, error) {
+func generateRefreshToken(userID uuid.UUID, key string, exp int64) (*refreshTokenData, error) {
 	currentTime := time.Now()
 	tokenExpiration := currentTime.Add(time.Duration(exp) * time.Second)
 	tokenID, err := uuid.NewRandom() // v4 uuid in the google uuid lib.
@@ -71,7 +71,7 @@ func generateRefreshToken(uid uuid.UUID, key string, exp int64) (*refreshTokenDa
 	}
 
 	claims := refreshTokenCustomClaims{
-		UID: uid,
+		UserID: userID,
 		StandardClaims: jwt.StandardClaims{
 			IssuedAt:  currentTime.Unix(),
 			ExpiresAt: tokenExpiration.Unix(),

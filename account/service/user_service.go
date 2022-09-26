@@ -33,27 +33,27 @@ func NewUserService(c *UserConfig) model.UserService {
 }
 
 // Get retrieves a user based on their uuid.
-func (s *userService) Get(ctx context.Context, uid uuid.UUID) (*model.User, error) {
-	u, err := s.UserRepository.FindById(ctx, uid)
+func (s *userService) Get(ctx context.Context, userID uuid.UUID) (*model.User, error) {
+	user, err := s.UserRepository.FindById(ctx, userID)
 
-	return u, err
+	return user, err
 }
 
 // SignUp reaches out to a UserRepository to verify the
 // email adress is available and signs up the user
 // if this is the case.
-func (s *userService) SignUp(ctx context.Context, u *model.User) error {
-	password, err := hashPassword(u.Password)
+func (s *userService) SignUp(ctx context.Context, user *model.User) error {
+	password, err := hashPassword(user.Password)
 
 	if err != nil {
-		log.Printf("Unable to signup user for email: %v\n", u.Email)
+		log.Printf("Unable to signup user for email: %v\n", user.Email)
 		return apperrors.NewInternal()
 	}
 
 	// Assign the hashPassword to the User.
-	u.Password = password
+	user.Password = password
 
-	if err := s.UserRepository.Create(ctx, u); err != nil {
+	if err := s.UserRepository.Create(ctx, user); err != nil {
 		return err
 	}
 
@@ -64,8 +64,8 @@ func (s *userService) SignUp(ctx context.Context, u *model.User) error {
 // and when compares the supplied password with the provided password
 // if a valid email/password combo is provided, u will hold all
 // available user fields.
-func (s *userService) SignIn(ctx context.Context, u *model.User) error {
-	userFetched, err := s.UserRepository.FindByEmail(ctx, u.Email)
+func (s *userService) SignIn(ctx context.Context, user *model.User) error {
+	userFetched, err := s.UserRepository.FindByEmail(ctx, user.Email)
 
 	// Will return NotAuthorized to client to omit details of why.
 	if err != nil {
@@ -73,7 +73,7 @@ func (s *userService) SignIn(ctx context.Context, u *model.User) error {
 	}
 
 	// verify password - we previously created this method.
-	match, err := comparePasswords(userFetched.Password, u.Password)
+	match, err := comparePasswords(userFetched.Password, user.Password)
 
 	if err != nil {
 		return apperrors.NewInternal()
@@ -83,6 +83,6 @@ func (s *userService) SignIn(ctx context.Context, u *model.User) error {
 		return apperrors.NewAuthorization("Invalid email and password combination")
 	}
 
-	*u = *userFetched
+	*user = *userFetched
 	return nil
 }

@@ -21,27 +21,27 @@ func TestMe(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	t.Run("Success", func(t *testing.T) {
-		uid, _ := uuid.NewRandom()
+		userID, _ := uuid.NewRandom()
 
 		mockUserResp := &model.User{
-			UID:      uid,
+			UserID:   userID,
 			Email:    "kostya@kostya.com",
 			Username: "Kostya Kostyan",
 		}
 
 		mockUserService := new(mocks.MockUserService)
-		mockUserService.On("Get", mock.AnythingOfType("*context.emptyCtx"), uid).Return(mockUserResp, nil)
+		mockUserService.On("Get", mock.AnythingOfType("*context.emptyCtx"), userID).Return(mockUserResp, nil)
 
 		// A response recorder for etting written http response.
 		responseRecorder := httptest.NewRecorder()
 
 		// Use a middleware to set context for test
 		// the only claims we care about in this test
-		// is the UID.
+		// is the UserID.
 		router := gin.Default()
 		router.Use(func(c *gin.Context) {
 			c.Set("user", &model.User{
-				UID: uid,
+				UserID: userID,
 			},
 			)
 		})
@@ -89,9 +89,9 @@ func TestMe(t *testing.T) {
 	})
 
 	t.Run("NotFound", func(t *testing.T) {
-		uid, _ := uuid.NewRandom()
+		userID, _ := uuid.NewRandom()
 		mockUserService := new(mocks.MockUserService)
-		mockUserService.On("Get", mock.Anything, uid).Return(nil, fmt.Errorf("Some error down call chain"))
+		mockUserService.On("Get", mock.Anything, userID).Return(nil, fmt.Errorf("Some error down call chain"))
 
 		// A response recorder for getting written http response.
 		responseRecorder := httptest.NewRecorder()
@@ -99,7 +99,7 @@ func TestMe(t *testing.T) {
 		router := gin.Default()
 		router.Use(func(c *gin.Context) {
 			c.Set("user", &model.User{
-				UID: uid,
+				UserID: userID,
 			},
 			)
 		})
@@ -114,7 +114,7 @@ func TestMe(t *testing.T) {
 
 		router.ServeHTTP(responseRecorder, request)
 
-		expectedResponseError := apperrors.NewNotFound("user", uid.String())
+		expectedResponseError := apperrors.NewNotFound("user", userID.String())
 
 		expectedrResponseBody, err := json.Marshal(gin.H{
 			"error": expectedResponseError,

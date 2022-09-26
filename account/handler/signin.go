@@ -23,13 +23,13 @@ func (h *Handler) SignIn(c *gin.Context) {
 		return
 	}
 
-	u := &model.User{
+	user := &model.User{
 		Email:    req.Email,
 		Password: req.Password,
 	}
 
 	ctx := c.Request.Context()
-	err := h.UserService.SignIn(ctx, u)
+	err := h.UserService.SignIn(ctx, user)
 
 	if err != nil {
 		log.Printf("Failed to sign in user: %v\n", err.Error())
@@ -39,7 +39,7 @@ func (h *Handler) SignIn(c *gin.Context) {
 		return
 	}
 
-	tokens, err := h.TokenService.NewPairFromUser(ctx, u, "")
+	tokens, err := h.TokenService.NewPairFromUser(ctx, user, "")
 
 	if err != nil {
 		log.Printf("Failed to create tokens for user: %v\n", err.Error())

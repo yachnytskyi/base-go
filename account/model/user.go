@@ -4,7 +4,7 @@ import "github.com/google/uuid"
 
 // User model.
 type User struct {
-	UID      uuid.UUID `db:"uid" json:"uid"`
+	UserID   uuid.UUID `db:"user_id" json:"userID"`
 	Email    string    `db:"email" json:"email"`
 	Password string    `db:"password" json:"-"`
 	Username string    `db:"username" json:"username"`

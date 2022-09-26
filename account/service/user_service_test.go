@@ -15,10 +15,10 @@ import (
 
 func TestGet(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
-		uid, _ := uuid.NewRandom()
+		userID, _ := uuid.NewRandom()
 
 		mockUserResponse := &model.User{
-			UID:      uid,
+			UserID:   userID,
 			Email:    "kostya@kostya.com",
 			Username: "Kostya Kostyan",
 		}
@@ -27,30 +27,30 @@ func TestGet(t *testing.T) {
 		us := NewUserService(&UserConfig{
 			UserRepository: mockUserRepository,
 		})
-		mockUserRepository.On("FindById", mock.Anything, uid).Return(mockUserResponse, nil)
+		mockUserRepository.On("FindById", mock.Anything, userID).Return(mockUserResponse, nil)
 
 		ctx := context.TODO()
-		u, err := us.Get(ctx, uid)
+		user, err := us.Get(ctx, userID)
 
 		assert.NoError(t, err)
-		assert.Equal(t, u, mockUserResponse)
+		assert.Equal(t, user, mockUserResponse)
 		mockUserRepository.AssertExpectations(t)
 	})
 
 	t.Run("Error", func(t *testing.T) {
-		uid, _ := uuid.NewRandom()
+		userID, _ := uuid.NewRandom()
 
 		mockUserRepository := new(mocks.MockUserRepository)
 		us := NewUserService(&UserConfig{
 			UserRepository: mockUserRepository,
 		})
 
-		mockUserRepository.On("FindById", mock.Anything, uid).Return(nil, fmt.Errorf("Some erro down the call chain"))
+		mockUserRepository.On("FindById", mock.Anything, userID).Return(nil, fmt.Errorf("Some erro down the call chain"))
 
 		ctx := context.TODO()
-		u, err := us.Get(ctx, uid)
+		user, err := us.Get(ctx, userID)
 
-		assert.Nil(t, u)
+		assert.Nil(t, user)
 		assert.Error(t, err)
 		mockUserRepository.AssertExpectations(t)
 	})
@@ -58,7 +58,7 @@ func TestGet(t *testing.T) {
 
 func TestSignup(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
-		uid, _ := uuid.NewRandom()
+		userID, _ := uuid.NewRandom()
 
 		mockUser := &model.User{
 			Email:    "kostya@kostya.com",
@@ -75,7 +75,7 @@ func TestSignup(t *testing.T) {
 		mockUserRepository.On("Create", mock.AnythingOfType("*context.emptyCtx"), mockUser).
 			Run(func(args mock.Arguments) {
 				userArg := args.Get(1).(*model.User) // arg 0 is context, arg 1 is *User.
-				userArg.UID = uid
+				userArg.UserID = userID
 			}).Return(nil)
 
 		ctx := context.TODO()
@@ -84,7 +84,7 @@ func TestSignup(t *testing.T) {
 		assert.NoError(t, err)
 
 		// assert the user now has a userID.
-		assert.Equal(t, uid, mockUser.UID)
+		assert.Equal(t, userID, mockUser.UserID)
 
 		mockUserRepository.AssertExpectations(t)
 	})

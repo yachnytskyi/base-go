@@ -29,15 +29,15 @@ func (h *Handler) Me(c *gin.Context) {
 		return
 	}
 
-	uid := user.(*model.User).UID
+	userID := user.(*model.User).UserID
 
 	// Use the Request context.
 	ctx := c.Request.Context()
-	u, err := h.UserService.Get(ctx, uid)
+	user, err := h.UserService.Get(ctx, userID)
 
 	if err != nil {
-		log.Printf("Unable to find user: %v\n%v", uid, err)
-		e := apperrors.NewNotFound("user", uid.String())
+		log.Printf("Unable to find user: %v\n%v", userID, err)
+		e := apperrors.NewNotFound("user", userID.String())
 
 		c.JSON(e.Status(), gin.H{
 			"error": e,
@@ -46,6 +46,6 @@ func (h *Handler) Me(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"user": u,
+		"user": user,
 	})
 }

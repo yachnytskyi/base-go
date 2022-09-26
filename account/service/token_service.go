@@ -51,39 +51,39 @@ func NewTokenService(c *TokenServiceConfig) model.TokenService {
 // NewPairFromUser creates fresh id and refresh tokens for the current user.
 // If a previous token is included, the previous token
 // is removed from the tokens repository.
-func (s *tokenService) NewPairFromUser(ctx context.Context, u *model.User, prevTokenID string) (*model.TokenPair, error) {
+func (s *tokenService) NewPairFromUser(ctx context.Context, user *model.User, prevTokenID string) (*model.TokenPair, error) {
 	if prevTokenID != "" {
-		if err := s.TokenRepository.DeleteRefreshToken(ctx, u.UID.String(), prevTokenID); err != nil {
-			log.Printf("Could not delete previous refreshToken for uid: %v, tokenID: %v\n", u.UID.String(), prevTokenID)
+		if err := s.TokenRepository.DeleteRefreshToken(ctx, user.UserID.String(), prevTokenID); err != nil {
+			log.Printf("Could not delete previous refreshToken for userID: %v, tokenID: %v\n", user.UserID.String(), prevTokenID)
 
 			return nil, err
 		}
 	}
 
 	// No need to use a repository for idToken as it is unrelated to any data source.
-	idToken, err := generateIDToken(u, s.PrivateKey, s.IDExpirationSecrets)
+	idToken, err := generateIDToken(user, s.PrivateKey, s.IDExpirationSecrets)
 
 	if err != nil {
-		log.Printf("Error generating idToken for uid: %v. Error: %v\n", u.UID, err.Error())
+		log.Printf("Error generating idToken for userID: %v. Error: %v\n", user.UserID, err.Error())
 		return nil, apperrors.NewInternal()
 	}
 
-	refreshToken, err := generateRefreshToken(u.UID, s.RefreshSecret, s.RefreshExpirationSecrets)
+	refreshToken, err := generateRefreshToken(user.UserID, s.RefreshSecret, s.RefreshExpirationSecrets)
 
 	if err != nil {
-		log.Printf("Error generating refreshToken for uid: %v. Error: %v\n", u.UID, err.Error())
+		log.Printf("Error generating refreshToken for userID: %v. Error: %v\n", user.UserID, err.Error())
 		return nil, apperrors.NewInternal()
 	}
 
 	// Set freshly minted refresh token to valid list.
-	if err := s.TokenRepository.SetRefreshToken(ctx, u.UID.String(), refreshToken.ID.String(), refreshToken.ExpiresIn); err != nil {
-		log.Printf("Error storing tokenID for uid: %v. Error: %v\n", u.UID, err.Error())
+	if err := s.TokenRepository.SetRefreshToken(ctx, user.UserID.String(), refreshToken.ID.String(), refreshToken.ExpiresIn); err != nil {
+		log.Printf("Error storing tokenID for userID: %v. Error: %v\n", user.UserID, err.Error())
 		return nil, apperrors.NewInternal()
 	}
 
 	return &model.TokenPair{
 		IDToken:      model.IDToken{SignedString: idToken},
-		RefreshToken: model.RefreshToken{SignedString: refreshToken.SignedString, ID: refreshToken.ID, UID: u.UID},
+		RefreshToken: model.RefreshToken{SignedString: refreshToken.SignedString, ID: refreshToken.ID, UserID: user.UserID},
 	}, nil
 }
 
@@ -125,6 +125,6 @@ func (s *tokenService) ValidateRefreshToken(tokenString string) (*model.RefreshT
 	return &model.RefreshToken{
 		SignedString: tokenString,
 		ID:           tokenUUID,
-		UID:          claims.UID,
+		UserID:       claims.UserID,
 	}, nil
 }

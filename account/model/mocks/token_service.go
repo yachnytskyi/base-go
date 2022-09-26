@@ -13,8 +13,8 @@ type MockTokenService struct {
 }
 
 // NewPairFromUser mocks concrete NewPairFromUser.
-func (m *MockTokenService) NewPairFromUser(ctx context.Context, u *model.User, refreshTokenID string) (*model.TokenPair, error) {
-	ret := m.Called(ctx, u, refreshTokenID)
+func (m *MockTokenService) NewPairFromUser(ctx context.Context, user *model.User, refreshTokenID string) (*model.TokenPair, error) {
+	ret := m.Called(ctx, user, refreshTokenID)
 
 	// First value passed to "Return".
 	var r0 *model.TokenPair

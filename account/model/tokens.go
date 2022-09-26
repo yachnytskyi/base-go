@@ -6,7 +6,7 @@ import "github.com/google/uuid"
 // are accessed in multiple application layers.
 type RefreshToken struct {
 	ID           uuid.UUID `json:"-"`
-	UID          uuid.UUID `json:"-"`
+	UserID       uuid.UUID `json:"-"`
 	SignedString string    `json:"refreshToken"`
 }
 

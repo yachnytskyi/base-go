@@ -19,10 +19,10 @@ func TestAuthUser(t *testing.T) {
 
 	mockTokenService := new(mocks.MockTokenService)
 
-	uid, _ := uuid.NewRandom()
+	userID, _ := uuid.NewRandom()
 	user := &model.User{
-		UID:   uid,
-		Email: "kostya@kostya.com",
+		UserID: userID,
+		Email:  "kostya@kostya.com",
 	}
 
 	// Since we mock tokenService, we do not

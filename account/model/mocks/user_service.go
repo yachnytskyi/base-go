@@ -14,10 +14,10 @@ type MockUserService struct {
 }
 
 // Get is mock of UserService Get.
-func (m *MockUserService) Get(ctx context.Context, uid uuid.UUID) (*model.User, error) {
+func (m *MockUserService) Get(ctx context.Context, userID uuid.UUID) (*model.User, error) {
 	// Args that will be passed to "Return" in the tests, when function
-	// is called with a uid. Hence the name "ret".
-	ret := m.Called(ctx, uid)
+	// is called with a userID. Hence the name "ret".
+	ret := m.Called(ctx, userID)
 
 	// First value passed to "Return".
 	var r0 *model.User
@@ -36,8 +36,8 @@ func (m *MockUserService) Get(ctx context.Context, uid uuid.UUID) (*model.User, 
 }
 
 // SignUp is a mock of UserService.SignUp
-func (m *MockUserService) SignUp(ctx context.Context, u *model.User) error {
-	ret := m.Called(ctx, u)
+func (m *MockUserService) SignUp(ctx context.Context, user *model.User) error {
+	ret := m.Called(ctx, user)
 
 	var r0 error
 	if ret.Get(0) != nil {
@@ -48,8 +48,8 @@ func (m *MockUserService) SignUp(ctx context.Context, u *model.User) error {
 }
 
 // SignIn is a mock for UserService.SignIn
-func (m *MockUserService) SignIn(ctx context.Context, u *model.User) error {
-	ret := m.Called(ctx, u)
+func (m *MockUserService) SignIn(ctx context.Context, user *model.User) error {
+	ret := m.Called(ctx, user)
 
 	var r0 error
 	if ret.Get(0) != nil {

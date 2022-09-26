@@ -14,8 +14,8 @@ type MockUserRepository struct {
 }
 
 // FindById is a mock of UserRepository FindById.
-func (m *MockUserRepository) FindById(ctx context.Context, uid uuid.UUID) (*model.User, error) {
-	ret := m.Called(ctx, uid)
+func (m *MockUserRepository) FindById(ctx context.Context, userID uuid.UUID) (*model.User, error) {
+	ret := m.Called(ctx, userID)
 
 	var r0 *model.User
 	if ret.Get(0) != nil {
@@ -32,8 +32,8 @@ func (m *MockUserRepository) FindById(ctx context.Context, uid uuid.UUID) (*mode
 }
 
 // Create is a mock for UserRepository Create.
-func (m *MockUserRepository) Create(ctx context.Context, u *model.User) error {
-	ret := m.Called(ctx, u)
+func (m *MockUserRepository) Create(ctx context.Context, user *model.User) error {
+	ret := m.Called(ctx, user)
 
 	var r0 error
 	if ret.Get(0) != nil {

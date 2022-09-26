@@ -34,7 +34,7 @@ func (h *Handler) Tokens(c *gin.Context) {
 	}
 
 	// Get up-to-date user.
-	user, err := h.UserService.Get(ctx, refreshToken.UID)
+	user, err := h.UserService.Get(ctx, refreshToken.UserID)
 
 	if err != nil {
 		c.JSON(apperrors.Status(err), gin.H{

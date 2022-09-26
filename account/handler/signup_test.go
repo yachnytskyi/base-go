@@ -159,13 +159,13 @@ func TestSignUp(t *testing.T) {
 	})
 
 	t.Run("Error returned from UserService", func(t *testing.T) {
-		u := &model.User{
+		user := &model.User{
 			Email:    "kostya@kostya.com",
 			Password: "secretpassword",
 		}
 
 		mockUserService := new(mocks.MockUserService)
-		mockUserService.On("SignUp", mock.AnythingOfType("*context.emptyCtx"), u).Return(apperrors.NewConflict("User Already Exists", u.Email))
+		mockUserService.On("SignUp", mock.AnythingOfType("*context.emptyCtx"), user).Return(apperrors.NewConflict("User Already Exists", user.Email))
 
 		// A response recorder for getting written http response.
 		responseRecorder := httptest.NewRecorder()
@@ -180,8 +180,8 @@ func TestSignUp(t *testing.T) {
 
 		// Create a request body with the filed email and password.
 		reqBody, err := json.Marshal(gin.H{
-			"email":    u.Email,
-			"password": u.Password,
+			"email":    user.Email,
+			"password": user.Password,
 		})
 		assert.NoError(t, err)
 
@@ -198,7 +198,7 @@ func TestSignUp(t *testing.T) {
 	})
 
 	t.Run("Successful Token Creation", func(t *testing.T) {
-		u := &model.User{
+		user := &model.User{
 			Email:    "kostya@kostya.com",
 			Password: "secretpassword",
 		}
@@ -211,8 +211,8 @@ func TestSignUp(t *testing.T) {
 		mockUserService := new(mocks.MockUserService)
 		mockTokenService := new(mocks.MockTokenService)
 
-		mockUserService.On("SignUp", mock.AnythingOfType("*context.emptyCtx"), u).Return(nil)
-		mockTokenService.On("NewPairFromUser", mock.AnythingOfType("*context.emptyCtx"), u, "").Return(mockTokenResponse, nil)
+		mockUserService.On("SignUp", mock.AnythingOfType("*context.emptyCtx"), user).Return(nil)
+		mockTokenService.On("NewPairFromUser", mock.AnythingOfType("*context.emptyCtx"), user, "").Return(mockTokenResponse, nil)
 
 		// A response recorder for getting a written http response.
 		responseRecorder := httptest.NewRecorder()
@@ -228,8 +228,8 @@ func TestSignUp(t *testing.T) {
 
 		// Create a request body with an empty email and password.
 		requestBody, err := json.Marshal(gin.H{
-			"email":    u.Email,
-			"password": u.Password,
+			"email":    user.Email,
+			"password": user.Password,
 		})
 		assert.NoError(t, err)
 
@@ -254,7 +254,7 @@ func TestSignUp(t *testing.T) {
 	})
 
 	t.Run("Failed Token Creation", func(t *testing.T) {
-		u := &model.User{
+		user := &model.User{
 			Email:    "kostya@kostya.com",
 			Password: "secretpassword",
 		}
@@ -264,8 +264,8 @@ func TestSignUp(t *testing.T) {
 		mockUserService := new(mocks.MockUserService)
 		mockTokenService := new(mocks.MockTokenService)
 
-		mockUserService.On("SignUp", mock.AnythingOfType("*context.emptyCtx"), u).Return(nil)
-		mockTokenService.On("NewPairFromUser", mock.AnythingOfType("*context.emptyCtx"), u, "").Return(nil, mockErrorResponse)
+		mockUserService.On("SignUp", mock.AnythingOfType("*context.emptyCtx"), user).Return(nil)
+		mockTokenService.On("NewPairFromUser", mock.AnythingOfType("*context.emptyCtx"), user, "").Return(nil, mockErrorResponse)
 
 		// A response recorder for getting a written http response.
 		responseRecorder := httptest.NewRecorder()
@@ -281,8 +281,8 @@ func TestSignUp(t *testing.T) {
 
 		// Create a request body with an empty email and password.
 		requestBody, err := json.Marshal(gin.H{
-			"email":    u.Email,
-			"password": u.Password,
+			"email":    user.Email,
+			"password": user.Password,
 		})
 		assert.NoError(t, err)
 
