@@ -51,10 +51,10 @@ func NewTokenService(c *TokenServiceConfig) model.TokenService {
 // NewPairFromUser creates fresh id and refresh tokens for the current user.
 // If a previous token is included, the previous token
 // is removed from the tokens repository.
-func (s *tokenService) NewPairFromUser(ctx context.Context, user *model.User, prevTokenID string) (*model.TokenPair, error) {
-	if prevTokenID != "" {
-		if err := s.TokenRepository.DeleteRefreshToken(ctx, user.UserID.String(), prevTokenID); err != nil {
-			log.Printf("Could not delete previous refreshToken for userID: %v, tokenID: %v\n", user.UserID.String(), prevTokenID)
+func (s *tokenService) NewPairFromUser(ctx context.Context, user *model.User, previousTokenID string) (*model.TokenPair, error) {
+	if previousTokenID != "" {
+		if err := s.TokenRepository.DeleteRefreshToken(ctx, user.UserID.String(), previousTokenID); err != nil {
+			log.Printf("Could not delete previous refreshToken for userID: %v, tokenID: %v\n", user.UserID.String(), previousTokenID)
 
 			return nil, err
 		}

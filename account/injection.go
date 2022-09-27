@@ -102,7 +102,7 @@ func inject(d *dataSources) (*gin.Engine, error) {
 	}
 
 	handler.NewHandler(&handler.Config{
-		R:               router,
+		Router:          router,
 		UserService:     userService,
 		TokenService:    tokenService,
 		BaseURL:         baseURL,

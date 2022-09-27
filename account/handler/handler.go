@@ -19,7 +19,7 @@ type Handler struct {
 // Config will hold services that will eventually be injected into this
 // handler layer on handler initialization.
 type Config struct {
-	R               *gin.Engine
+	Router          *gin.Engine
 	UserService     model.UserService
 	TokenService    model.TokenService
 	BaseURL         string
@@ -36,7 +36,7 @@ func NewHandler(c *Config) {
 	} // Currently has no properties.
 
 	// Create an account group.
-	g := c.R.Group(c.BaseURL)
+	g := c.Router.Group(c.BaseURL)
 
 	if gin.Mode() != gin.TestMode {
 		g.Use(middleware.Timeout(c.TimeoutDuration, apperrors.NewServiceUnavailable()))

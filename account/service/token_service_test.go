@@ -161,7 +161,7 @@ func TestNewPairFromUser(t *testing.T) {
 
 		// SetRefreshToken should be called with setSuccessArguments.
 		mockTokenRepository.AssertCalled(t, "SetRefreshToken", setSuccessArguments...)
-		// DeleteRefreshToken should not be called since prevID is "".
+		// DeleteRefreshToken should not be called since previousID is "".
 		mockTokenRepository.AssertNotCalled(t, "DeleteRefreshToken")
 	})
 

@@ -46,7 +46,7 @@ func TestMe(t *testing.T) {
 			)
 		})
 		NewHandler(&Config{
-			R:           router,
+			Router:      router,
 			UserService: mockUserService,
 		})
 
@@ -75,7 +75,7 @@ func TestMe(t *testing.T) {
 		// Do not append user to context.
 		router := gin.Default()
 		NewHandler(&Config{
-			R:           router,
+			Router:      router,
 			UserService: mockUserService,
 		})
 
@@ -105,7 +105,7 @@ func TestMe(t *testing.T) {
 		})
 
 		NewHandler(&Config{
-			R:           router,
+			Router:      router,
 			UserService: mockUserService,
 		})
 
