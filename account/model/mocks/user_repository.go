@@ -60,3 +60,15 @@ func (m *MockUserRepository) FindByEmail(ctx context.Context, email string) (*mo
 
 	return r0, r1
 }
+
+// Update is a mock of UserRepository.Update
+func (m *MockUserRepository) Update(ctx context.Context, user *model.User) error {
+	ret := m.Called(ctx, user)
+
+	var r0 error
+	if ret.Get(0) != nil {
+		r0 = ret.Get(0).(error)
+	}
+
+	return r0
+}

@@ -67,3 +67,26 @@ func (r *pgUserRepository) FindByEmail(ctx context.Context, email string) (*mode
 
 	return user, nil
 }
+
+// Update updates a user's properties.
+func (r *pgUserRepository) Update(ctx context.Context, user *model.User) error {
+	query := `
+		UPDATE users 
+		SET username=:username, email=:email, website=:website
+		WHERE user_id=:user_id
+		RETURNING *;
+	`
+	prepareNamedStatement, err := r.DB.PrepareNamedContext(ctx, query)
+
+	if err != nil {
+		log.Printf("Unable to prepate the user update query: %v\n", err)
+		return apperrors.NewInternal()
+	}
+
+	if err := prepareNamedStatement.GetContext(ctx, user, user); err != nil {
+		log.Printf("Unable to prepare the user update query: %v\n", err)
+		return apperrors.NewInternal()
+	}
+
+	return nil
+}

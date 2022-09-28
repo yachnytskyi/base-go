@@ -13,6 +13,7 @@ type UserService interface {
 	Get(ctx context.Context, userID uuid.UUID) (*User, error)
 	SignUp(ctx context.Context, user *User) error
 	SignIn(ctx context.Context, user *User) error
+	UpdateDetails(ctx context.Context, user *User) error
 }
 
 // TokenService defines methods the handler layer expects to interact
@@ -30,6 +31,7 @@ type UserRepository interface {
 	FindById(ctx context.Context, userID uuid.UUID) (*User, error)
 	FindByEmail(ctx context.Context, email string) (*User, error)
 	Create(ctx context.Context, user *User) error
+	Update(ctx context.Context, user *User) error
 }
 
 // TokenRepository defines methids if expects a repository

@@ -86,3 +86,14 @@ func (s *userService) SignIn(ctx context.Context, user *model.User) error {
 	*user = *userFetched
 	return nil
 }
+
+func (s *userService) UpdateDetails(ctx context.Context, user *model.User) error {
+	// Update a user in UserRepository.
+	err := s.UserRepository.Update(ctx, user)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
