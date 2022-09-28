@@ -12,7 +12,7 @@ import (
 )
 
 // redisTokenRepository is data/repository implementation
-// of service layer TokenRepository.
+// of the service layer TokenRepository.
 type redisTokenRepository struct {
 	Redis *redis.Client
 }
@@ -53,6 +53,33 @@ func (r *redisTokenRepository) DeleteRefreshToken(ctx context.Context, userID st
 	if result.Val() < 1 {
 		log.Printf("Refresh token to redis for userID/tokenID: %s/%s does not exist\n", userID, tokenID)
 		return apperrors.NewAuthorization("Invalid refresh token")
+	}
+
+	return nil
+}
+
+// DeleteUserRefreshTokens looks for all tokens beginning with
+// userID and scans to delete them in a non-blocking fashion.
+func (r *redisTokenRepository) DeleteUserRefreshTokens(ctx context.Context, userID string) error {
+	pattern := fmt.Sprintf("%s*", userID)
+
+	scanIterator := r.Redis.Scan(ctx, 0, pattern, 5).Iterator()
+	failsCount := 0
+
+	for scanIterator.Next(ctx) {
+		if err := r.Redis.Del(ctx, scanIterator.Val()).Err(); err != nil {
+			log.Printf("Failed to delete the refresh token: %s\n", scanIterator.Val())
+			failsCount++
+		}
+	}
+
+	// Check the last value.
+	if err := scanIterator.Err(); err != nil {
+		log.Printf("Failed to delete the refresh token: %s\n", scanIterator.Val())
+	}
+
+	if failsCount > 0 {
+		return apperrors.NewInternal()
 	}
 
 	return nil

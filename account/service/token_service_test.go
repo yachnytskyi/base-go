@@ -195,6 +195,36 @@ func TestNewPairFromUser(t *testing.T) {
 	})
 }
 
+func TestSignOut(t *testing.T) {
+	mockTokenRepository := new(mocks.MockTokenRepository)
+	tokenService := NewTokenService(&TokenServiceConfig{
+		TokenRepository: mockTokenRepository,
+	})
+
+	t.Run("No error", func(t *testing.T) {
+		userIDSuccess, _ := uuid.NewRandom()
+		mockTokenRepository.On("DeleteUserRefreshTokens", mock.AnythingOfType("*context.emptyCtx"), userIDSuccess.String()).Return(nil)
+
+		ctx := context.Background()
+		err := tokenService.SignOut(ctx, userIDSuccess)
+		assert.NoError(t, err)
+	})
+
+	t.Run("Error", func(t *testing.T) {
+		userIDError, _ := uuid.NewRandom()
+		mockTokenRepository.On("DeleteUserRefreshTokens", mock.AnythingOfType("*context.emptyCtx"), userIDError.String()).Return(apperrors.NewInternal())
+
+		ctx := context.Background()
+		err := tokenService.SignOut(ctx, userIDError)
+
+		assert.Error(t, err)
+
+		appError, ok := err.(*apperrors.Error)
+		assert.True(t, ok)
+		assert.Equal(t, appError.Type, apperrors.Internal)
+	})
+}
+
 func TestValidateIDToken(t *testing.T) {
 	var idExpiration int64 = 15 * 60
 

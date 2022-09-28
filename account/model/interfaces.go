@@ -19,6 +19,7 @@ type UserService interface {
 // with in regards to producting JWTs as string.
 type TokenService interface {
 	NewPairFromUser(ctx context.Context, user *User, refreshTokenID string) (*TokenPair, error)
+	SignOut(ctx context.Context, userID uuid.UUID) error
 	ValidateIDToken(tokenString string) (*User, error)
 	ValidateRefreshToken(refreshTokenString string) (*RefreshToken, error)
 }
@@ -36,4 +37,5 @@ type UserRepository interface {
 type TokenRepository interface {
 	SetRefreshToken(ctx context.Context, userID string, tokenID string, expiresIn time.Duration) error
 	DeleteRefreshToken(ctx context.Context, userID string, previousTokenID string) error
+	DeleteUserRefreshTokens(ctx context.Context, userID string) error
 }

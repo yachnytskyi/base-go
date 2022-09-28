@@ -16,9 +16,9 @@ import (
 )
 
 // Will initialize a handler starting from data sources
-// which inject into repository layer
-// which inject into service layer
-// which inject into handler layer.
+// which inject into the repository layer
+// which inject into the service layer
+// which inject into the handler layer.
 func inject(d *dataSources) (*gin.Engine, error) {
 	log.Println("Injection data sources")
 

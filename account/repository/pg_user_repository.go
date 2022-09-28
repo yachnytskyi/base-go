@@ -11,7 +11,7 @@ import (
 	"github.com/yachnytskyi/base-go/account/model/apperrors"
 )
 
-// pgUserRepository is data/repository implementation of service layer UserRepository.
+// pgUserRepository is data/repository implementation of the service layer UserRepository.
 type pgUserRepository struct {
 	DB *sqlx.DB
 }

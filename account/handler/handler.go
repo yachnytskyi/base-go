@@ -41,25 +41,19 @@ func NewHandler(c *Config) {
 	if gin.Mode() != gin.TestMode {
 		g.Use(middleware.Timeout(c.TimeoutDuration, apperrors.NewServiceUnavailable()))
 		g.GET("/me", middleware.AuthUser(h.TokenService), h.Me)
+		g.POST("/signout", middleware.AuthUser(h.TokenService), h.SignOut)
 	} else {
 		g.GET("/me", h.Me)
+		g.POST("/signout", h.SignOut)
 	}
 
 	g.POST("/signup", h.SignUp)
 	g.POST("/signin", h.SignIn)
-	g.POST("/signout", h.SignOut)
 	g.POST("/tokens", h.Tokens)
 	g.POST("/image", h.Image)
 	g.DELETE("/image", h.DeleteImage)
 	g.PUT("/details", h.Details)
 
-}
-
-// SignOut handler.
-func (h *Handler) SignOut(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
-		"hello": "it's signout",
-	})
 }
 
 // Image handler.
