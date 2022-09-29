@@ -12,7 +12,7 @@ import (
 // Omitempty must be listed first (tags evaluated sequentially, it seems).
 type detailsRequest struct {
 	Username string `json:"username" binding:"omitempty,max=40"`
-	Email    string `json:"email" binding:"omitempty,email"`
+	Email    string `json:"email" binding:"required,email"`
 	Website  string `json:"website" binding:"omitempty,url"`
 }
 
