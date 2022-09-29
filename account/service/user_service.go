@@ -13,14 +13,16 @@ import (
 // an implementation of UserRepository
 // for use in service methods.
 type userService struct {
-	UserRepository model.UserRepository
+	UserRepository  model.UserRepository
+	ImageRepository model.ImageRepository
 }
 
 // UserConfig will hold repositories that
 // will eventually be injected into
 // this service layer.
 type UserConfig struct {
-	UserRepository model.UserRepository
+	UserRepository  model.UserRepository
+	ImageRepository model.ImageRepository
 }
 
 // NewUserService is a factory function for
@@ -28,7 +30,8 @@ type UserConfig struct {
 // repository layer dependencies.
 func NewUserService(c *UserConfig) model.UserService {
 	return &userService{
-		UserRepository: c.UserRepository,
+		UserRepository:  c.UserRepository,
+		ImageRepository: c.ImageRepository,
 	}
 }
 
