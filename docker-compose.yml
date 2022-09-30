@@ -30,7 +30,7 @@ services:
       - ENV=dev
     volumes:
       - ./account:/go/src/app
-    # Have to use $$ (double-dollar) so docker doesn't try to substitute a variable.
+    # Have to use $$ (double-dollar) so docker does not try to substitute a variable.
     depends_on:
       - postgres-account
       - redis-account

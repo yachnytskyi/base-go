@@ -90,3 +90,26 @@ func (r *pgUserRepository) Update(ctx context.Context, user *model.User) error {
 
 	return nil
 }
+
+// UpdateImage is used to update a user's separately image from
+// other account details.
+func (r *pgUserRepository) UpdateImage(ctx context.Context, userID uuid.UUID, imageURL string) (*model.User, error) {
+	query := `
+		UPDATE users
+		SET image_url=$2
+		WHERE user_id=$1
+		RETURNING *;
+	`
+
+	// Must be instantiated to scan into reference using 'GetContext'.
+	user := &model.User{}
+
+	err := r.DB.GetContext(ctx, user, query, userID, imageURL)
+
+	if err != nil {
+		log.Printf("Error updating image_url in database: %v\n", err)
+		return nil, apperrors.NewInternal()
+	}
+
+	return user, nil
+}

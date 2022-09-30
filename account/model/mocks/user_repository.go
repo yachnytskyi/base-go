@@ -72,3 +72,21 @@ func (m *MockUserRepository) Update(ctx context.Context, user *model.User) error
 
 	return r0
 }
+
+// UpdateImage is a mock of UserRepository.UpdateImage
+func (m *MockUserRepository) UpdateImage(ctx context.Context, userID uuid.UUID, imageURL string) (*model.User, error) {
+	ret := m.Called(ctx, userID, imageURL)
+
+	var r0 *model.User
+	if ret.Get(0) != nil {
+		r0 = ret.Get(0).(*model.User)
+	}
+
+	var r1 error
+
+	if ret.Get(1) != nil {
+		r1 = ret.Get(1).(error)
+	}
+
+	return r0, r1
+}

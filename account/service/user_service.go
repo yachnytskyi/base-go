@@ -3,6 +3,9 @@ package service
 import (
 	"context"
 	"log"
+	"mime/multipart"
+	"net/url"
+	"path"
 
 	"github.com/google/uuid"
 	"github.com/yachnytskyi/base-go/account/model"
@@ -99,4 +102,63 @@ func (s *userService) UpdateDetails(ctx context.Context, user *model.User) error
 	}
 
 	return nil
+}
+
+func (s *userService) SetProfileImage(ctx context.Context, userID uuid.UUID, imageFileHeader *multipart.FileHeader) (*model.User, error) {
+	user, err := s.UserRepository.FindById(ctx, userID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	objectName, err := objectNameFromUrl(user.ImageURL)
+
+	if err != nil {
+		return nil, err
+	}
+
+	imageFile, err := imageFileHeader.Open()
+
+	if err != nil {
+		log.Printf("Failed to ope the image file: %v\n", err)
+		return nil, apperrors.NewInternal()
+	}
+
+	// Upload a user's image to ImageRepository.
+	// Possibly received an updated imageURL.
+	imageURL, err := s.ImageRepository.UpdateProfile(ctx, objectName, imageFile)
+
+	if err != nil {
+		log.Printf("Unable to upload the image to the cloud provider: %v\n", err)
+		return nil, err
+	}
+
+	updatedUser, err := s.UserRepository.UpdateImage(ctx, user.UserID, imageURL)
+
+	if err != nil {
+		log.Printf("Unable to update the imageURL: %v\n", err)
+		return nil, err
+	}
+
+	return updatedUser, nil
+}
+
+func objectNameFromUrl(imageURL string) (string, error) {
+	// If a user does not have an imageURL - create one.
+	// Otherwise, extract the last part of the URL to get a cloud storage object name.
+	if imageURL == "" {
+		objectID, _ := uuid.NewRandom()
+		return objectID.String(), nil
+	}
+
+	// Split off the last part of the URL, which is the image's storage object ID.
+	urlPath, err := url.Parse(imageURL)
+
+	if err != nil {
+		log.Printf("Failed to parse objectName from the imageURL: %v\n", imageURL)
+		return "", apperrors.NewInternal()
+	}
+	// Get "path" of an url (everything is after a domain).
+	// Then get "base", the last part.
+	return path.Base(urlPath.Path), nil
 }

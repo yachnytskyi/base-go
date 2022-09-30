@@ -2,6 +2,7 @@ package mocks
 
 import (
 	"context"
+	"mime/multipart"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"
@@ -69,4 +70,23 @@ func (m *MockUserService) UpdateDetails(ctx context.Context, user *model.User) e
 	}
 
 	return r0
+}
+
+// SetProfileImage is a mock of UserService.SetProfileImage
+func (m *MockUserService) SetProfileImage(ctx context.Context, userID uuid.UUID, imageFileHeader *multipart.FileHeader) (*model.User, error) {
+	ret := m.Called(ctx, userID, imageFileHeader)
+
+	// First value passed to "Return"
+	var r0 *model.User
+	if ret.Get(0) != nil {
+		r0 = ret.Get(0).(*model.User)
+	}
+
+	var r1 error
+
+	if ret.Get(1) != nil {
+		r1 = ret.Get(1).(error)
+	}
+
+	return r0, r1
 }
