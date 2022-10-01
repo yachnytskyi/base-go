@@ -40,7 +40,7 @@ func NewUserService(c *UserConfig) model.UserService {
 
 // Get retrieves a user based on their uuid.
 func (s *userService) Get(ctx context.Context, userID uuid.UUID) (*model.User, error) {
-	user, err := s.UserRepository.FindById(ctx, userID)
+	user, err := s.UserRepository.FindByID(ctx, userID)
 
 	return user, err
 }
@@ -105,7 +105,7 @@ func (s *userService) UpdateDetails(ctx context.Context, user *model.User) error
 }
 
 func (s *userService) SetProfileImage(ctx context.Context, userID uuid.UUID, imageFileHeader *multipart.FileHeader) (*model.User, error) {
-	user, err := s.UserRepository.FindById(ctx, userID)
+	user, err := s.UserRepository.FindByID(ctx, userID)
 
 	if err != nil {
 		return nil, err

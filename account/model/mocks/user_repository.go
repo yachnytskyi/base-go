@@ -13,8 +13,8 @@ type MockUserRepository struct {
 	mock.Mock
 }
 
-// FindById is a mock of UserRepository FindById.
-func (m *MockUserRepository) FindById(ctx context.Context, userID uuid.UUID) (*model.User, error) {
+// FindByID is a mock of UserRepository FindByID.
+func (m *MockUserRepository) FindByID(ctx context.Context, userID uuid.UUID) (*model.User, error) {
 	ret := m.Called(ctx, userID)
 
 	var r0 *model.User

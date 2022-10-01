@@ -41,7 +41,7 @@ func (r *pgUserRepository) Create(ctx context.Context, user *model.User) error {
 }
 
 // FindByID fetches a user by id.
-func (r *pgUserRepository) FindById(ctx context.Context, userID uuid.UUID) (*model.User, error) {
+func (r *pgUserRepository) FindByID(ctx context.Context, userID uuid.UUID) (*model.User, error) {
 	user := &model.User{}
 
 	query := "SELECT * FROM users WHERE user_id=$1"
