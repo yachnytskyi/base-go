@@ -38,6 +38,40 @@ func NewUserService(c *UserConfig) model.UserService {
 	}
 }
 
+// ClearProfileImage finds a user by its ID,
+// than removes an image from Google Cloud,
+// and finally removes an imageURL
+// string in postgres.
+func (s *userService) ClearProfileImage(ctx context.Context, userID uuid.UUID) error {
+	user, err := s.UserRepository.FindByID(ctx, userID)
+
+	if err != nil {
+		return err
+	}
+
+	if user.ImageURL == "" {
+		return nil
+	}
+
+	objectName, err := objectNameFromUrl(user.ImageURL)
+	if err != nil {
+		return err
+	}
+
+	err = s.ImageRepository.DeleteProfile(ctx, objectName)
+	if err != nil {
+		return err
+	}
+
+	_, err = s.UserRepository.UpdateImage(ctx, userID, "")
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // Get retrieves a user based on their uuid.
 func (s *userService) Get(ctx context.Context, userID uuid.UUID) (*model.User, error) {
 	user, err := s.UserRepository.FindByID(ctx, userID)

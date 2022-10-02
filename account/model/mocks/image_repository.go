@@ -11,6 +11,18 @@ type MockImageRepository struct {
 	mock.Mock
 }
 
+// DeleteProfile is a mock of representantions of ImageRepository Delete Profile.
+func (m *MockImageRepository) DeleteProfile(ctx context.Context, objectName string) error {
+	ret := m.Called(ctx, objectName)
+
+	var r0 error
+	if ret.Get(0) != nil {
+		r0 = ret.Get(0).(error)
+	}
+
+	return r0
+}
+
 // UpdateProfile is a mock of representantions of ImageRepository Update Profile.
 func (m *MockImageRepository) UpdateProfile(ctx context.Context, objectName string, imageFile multipart.File) (string, error) {
 	// Arguments that will be passed to "Return" in the tests, when function

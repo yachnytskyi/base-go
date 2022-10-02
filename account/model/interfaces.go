@@ -11,6 +11,7 @@ import (
 // UserService defines methods the handler layer expects
 // any service it interacts with to implement.
 type UserService interface {
+	ClearProfileImage(ctx context.Context, userID uuid.UUID) error
 	Get(ctx context.Context, userID uuid.UUID) (*User, error)
 	SignUp(ctx context.Context, user *User) error
 	SignIn(ctx context.Context, user *User) error
@@ -48,5 +49,6 @@ type TokenRepository interface {
 // ImageRepository defines methods it expects a repository.
 // It interacts with to implement.
 type ImageRepository interface {
+	DeleteProfile(ctx context.Context, objectName string) error
 	UpdateProfile(ctx context.Context, objectName string, imageFile multipart.File) (string, error)
 }
