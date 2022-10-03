@@ -2,15 +2,17 @@ Base Go Source code for Base Go App.
 
 The project uses:
 
-Golang.
-Gin.
-Postgres.
+Golang. 
+Gin. 
+Postgres. 
 Redis.
 
-I have implemented a script in Makefile which creates necessary keypairs (for creating dev and test JSON Web Tokens), runs required docker-compose service for Postgres, migrates our database tables, then shuts down docker-compose.
+I have implemented a script in Makefile which creates necessary keypairs (for creating dev and test JSON Web Tokens),  
+runs required docker-compose service for Postgres, migrates our database tables, then shuts down docker-compose.
 
-As an example, we'll migrate database changes found in ~/account/migrations to our postgres-account service found in ~/docker-compose.yml.
-If you need to use some commands separately (for example make your own DB migrations), to distinguish them from others, you can check Makefile in the root directory.
+As an example, we'll migrate database changes found in ~/account/migrations to our postgres-account service found in ~/docker-compose.yml.  
+If you need to use some commands separately (for example make your own DB migrations), to distinguish them from others, 
+you can check Makefile in the root directory.
 
 From the project root director, run:
 
