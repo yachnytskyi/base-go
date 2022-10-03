@@ -46,7 +46,7 @@ After that repeat the command ```docker-compose up``` for launching the project.
 In order to access Google Cloud for storing profile images, you will need to download a service account JSON file   
 to your account application folder and call it `serviceAccount.json`.     
 
-This file will be references in ```.env.dev```. You also need to call your Bucket in Google Cloud  as   
+This file will be references in ```.env.dev```. You also need to call your Bucket in Google Cloud as    
 `go_base_profile_images` (you can find this information in `.env.dev` file).
 
 Instructions for installing the Google Cloud Storage Client and getting this key are found at:
