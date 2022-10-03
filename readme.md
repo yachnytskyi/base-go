@@ -1,4 +1,4 @@
-Base Go Source code for Pizza App
+Base Go Source code for Base Go App.
 
 The project uses:
 
