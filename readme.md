@@ -23,7 +23,7 @@ others, you can check Makefile in the root directory.
 quickly running this application. 
 
 We will not be adding any critical keys directly to the `.env.dev` file. However, we will eventually  refer to    
-access key files in `.env.dev`. Make sure to add these key files to your `.gitignore`
+access key files in `.env.dev`. Make sure to add these key files to your `.gitignore`.
 
 ## From the project root director, run:
 
