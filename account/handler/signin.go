@@ -16,10 +16,10 @@ type signInRequest struct {
 }
 
 // SignIn used to authenticate extant user.
-func (h *Handler) SignIn(c *gin.Context) {
+func (h *Handler) SignIn(context *gin.Context) {
 	var req signInRequest
 
-	if ok := bindData(c, &req); !ok {
+	if ok := bindData(context, &req); !ok {
 		return
 	}
 
@@ -28,12 +28,12 @@ func (h *Handler) SignIn(c *gin.Context) {
 		Password: req.Password,
 	}
 
-	ctx := c.Request.Context()
+	ctx := context.Request.Context()
 	err := h.UserService.SignIn(ctx, user)
 
 	if err != nil {
 		log.Printf("Failed to sign in user: %v\n", err.Error())
-		c.JSON(apperrors.Status(err), gin.H{
+		context.JSON(apperrors.Status(err), gin.H{
 			"error": err,
 		})
 		return
@@ -44,13 +44,13 @@ func (h *Handler) SignIn(c *gin.Context) {
 	if err != nil {
 		log.Printf("Failed to create tokens for user: %v\n", err.Error())
 
-		c.JSON(apperrors.Status(err), gin.H{
+		context.JSON(apperrors.Status(err), gin.H{
 			"error": err,
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
+	context.JSON(http.StatusOK, gin.H{
 		"tokens": tokens,
 	})
 }

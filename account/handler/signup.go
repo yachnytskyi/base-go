@@ -17,13 +17,13 @@ type signUpRequest struct {
 }
 
 // SignUp handler.
-func (h *Handler) SignUp(c *gin.Context) {
+func (h *Handler) SignUp(context *gin.Context) {
 	// define a variable to which we'll bind incoming
 	// json body, {email, password}.
 	var jsonRequest signUpRequest
 
 	// Bind incoming json to struct and check for validation errors.
-	if ok := bindData(c, &jsonRequest); !ok {
+	if ok := bindData(context, &jsonRequest); !ok {
 		return
 	}
 
@@ -32,12 +32,12 @@ func (h *Handler) SignUp(c *gin.Context) {
 		Password: jsonRequest.Password,
 	}
 
-	ctx := c.Request.Context()
+	ctx := context.Request.Context()
 	err := h.UserService.SignUp(ctx, user)
 
 	if err != nil {
 		log.Printf("Failed to sign up the user: %v\n", err.Error())
-		c.JSON(apperrors.Status(err), gin.H{
+		context.JSON(apperrors.Status(err), gin.H{
 			"erorr": err,
 		})
 		return
@@ -53,13 +53,13 @@ func (h *Handler) SignUp(c *gin.Context) {
 		// meaning, if we fail to create tokens after creating a user,
 		// we make sure to cleate/delete the created user in the database.
 
-		c.JSON(apperrors.Status(err), gin.H{
+		context.JSON(apperrors.Status(err), gin.H{
 			"error": err,
 		})
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{
+	context.JSON(http.StatusCreated, gin.H{
 		"tokens": tokens,
 	})
 }

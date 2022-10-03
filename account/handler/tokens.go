@@ -13,21 +13,21 @@ type tokensRequest struct {
 }
 
 // Tokens handler.
-func (h *Handler) Tokens(c *gin.Context) {
+func (h *Handler) Tokens(context *gin.Context) {
 	// Bind JSON to request of type tokensRequest.
 	var request tokensRequest
 
-	if ok := bindData(c, &request); !ok {
+	if ok := bindData(context, &request); !ok {
 		return
 	}
 
-	ctx := c.Request.Context()
+	ctx := context.Request.Context()
 
 	// Verify refresh JWT.
 	refreshToken, err := h.TokenService.ValidateRefreshToken(request.RefreshTokenString)
 
 	if err != nil {
-		c.JSON(apperrors.Status(err), gin.H{
+		context.JSON(apperrors.Status(err), gin.H{
 			"error": err,
 		})
 		return
@@ -37,7 +37,7 @@ func (h *Handler) Tokens(c *gin.Context) {
 	user, err := h.UserService.Get(ctx, refreshToken.UserID)
 
 	if err != nil {
-		c.JSON(apperrors.Status(err), gin.H{
+		context.JSON(apperrors.Status(err), gin.H{
 			"error": err,
 		})
 		return
@@ -49,13 +49,13 @@ func (h *Handler) Tokens(c *gin.Context) {
 	if err != nil {
 		log.Printf("Failed to create tokens for the user: %+v. Error: %v\n", user, err.Error())
 
-		c.JSON(apperrors.Status(err), gin.H{
+		context.JSON(apperrors.Status(err), gin.H{
 			"error": err,
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
+	context.JSON(http.StatusOK, gin.H{
 		"tokens": tokens,
 	})
 }

@@ -18,20 +18,20 @@ type invalidArgument struct {
 }
 
 // bindData is the helper function, returns false if data is not bound.
-func bindData(c *gin.Context, request interface{}) bool {
-	if c.ContentType() != "application/json" {
-		message := fmt.Sprintf("%s only accepts Content-Type application/json", c.FullPath())
+func bindData(context *gin.Context, request interface{}) bool {
+	if context.ContentType() != "application/json" {
+		message := fmt.Sprintf("%s only accepts Content-Type application/json", context.FullPath())
 
 		err := apperrors.NewUnsupportedMediaType(message)
 
-		c.JSON(err.Status(), gin.H{
+		context.JSON(err.Status(), gin.H{
 			"error": err,
 		})
 		return false
 	}
 
 	// bindData incoming json to struct and check for validation errors.
-	if err := c.ShouldBind(request); err != nil {
+	if err := context.ShouldBind(request); err != nil {
 		log.Printf("Error binding data: %+v\n", err)
 
 		if errs, ok := err.(validator.ValidationErrors); ok {
@@ -49,7 +49,7 @@ func bindData(c *gin.Context, request interface{}) bool {
 
 			err := apperrors.NewBadRequest("Invalid request parameters. See invalidArgs")
 
-			c.JSON(err.Status(), gin.H{
+			context.JSON(err.Status(), gin.H{
 				"error":       err,
 				"invalidArgs": invalidArgs,
 			})
@@ -62,7 +62,7 @@ func bindData(c *gin.Context, request interface{}) bool {
 		// it will fallback and return an internal server error.
 		fallBack := apperrors.NewInternal()
 
-		c.JSON(fallBack.Status(), gin.H{"error": fallBack})
+		context.JSON(fallBack.Status(), gin.H{"error": fallBack})
 		return false
 	}
 	return true

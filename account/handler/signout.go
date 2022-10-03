@@ -9,18 +9,18 @@ import (
 )
 
 // SignOut handler.
-func (h *Handler) SignOut(c *gin.Context) {
-	user := c.MustGet("user")
+func (h *Handler) SignOut(context *gin.Context) {
+	user := context.MustGet("user")
 
-	ctx := c.Request.Context()
+	ctx := context.Request.Context()
 	if err := h.TokenService.SignOut(ctx, user.(*model.User).UserID); err != nil {
-		c.JSON(apperrors.Status(err), gin.H{
+		context.JSON(apperrors.Status(err), gin.H{
 			"error": err,
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
+	context.JSON(http.StatusOK, gin.H{
 		"message": "the user signed out successfully!",
 	})
 }

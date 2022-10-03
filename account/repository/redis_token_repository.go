@@ -25,11 +25,11 @@ func NewTokenRepository(redisClient *redis.Client) model.TokenRepository {
 }
 
 // SetRefreshToken stores a refresh token with an expiry time.
-func (r *redisTokenRepository) SetRefreshToken(ctx context.Context, userID string, tokenID string, expiresIn time.Duration) error {
+func (repository *redisTokenRepository) SetRefreshToken(ctx context.Context, userID string, tokenID string, expiresIn time.Duration) error {
 	// We will store userID with token id so we can scan (non-blocking)
 	// over the user's tokens and delete them in case of token leakage.
 	key := fmt.Sprintf("%s:%s", userID, tokenID)
-	if err := r.Redis.Set(ctx, key, 0, expiresIn).Err(); err != nil {
+	if err := repository.Redis.Set(ctx, key, 0, expiresIn).Err(); err != nil {
 		log.Printf("Could not SET refresh token to Redis for userID/tokenID: %s/%s: %v\n", userID, tokenID, err)
 		return apperrors.NewInternal()
 	}
@@ -38,10 +38,10 @@ func (r *redisTokenRepository) SetRefreshToken(ctx context.Context, userID strin
 
 // DeleteRefreshToken used to delete old refresh tokens.
 // Services my access this to revolve tokens.
-func (r *redisTokenRepository) DeleteRefreshToken(ctx context.Context, userID string, tokenID string) error {
+func (repository *redisTokenRepository) DeleteRefreshToken(ctx context.Context, userID string, tokenID string) error {
 	key := fmt.Sprintf("%s:%s", userID, tokenID)
 
-	result := r.Redis.Del(ctx, key)
+	result := repository.Redis.Del(ctx, key)
 
 	if err := result.Err(); err != nil {
 		log.Printf("Could not delete refresh token to redis for userID/tokenID: %s/%s: %v\n", userID, tokenID, err)
@@ -60,14 +60,14 @@ func (r *redisTokenRepository) DeleteRefreshToken(ctx context.Context, userID st
 
 // DeleteUserRefreshTokens looks for all tokens beginning with
 // userID and scans to delete them in a non-blocking fashion.
-func (r *redisTokenRepository) DeleteUserRefreshTokens(ctx context.Context, userID string) error {
+func (repository *redisTokenRepository) DeleteUserRefreshTokens(ctx context.Context, userID string) error {
 	pattern := fmt.Sprintf("%s*", userID)
 
-	scanIterator := r.Redis.Scan(ctx, 0, pattern, 5).Iterator()
+	scanIterator := repository.Redis.Scan(ctx, 0, pattern, 5).Iterator()
 	failsCount := 0
 
 	for scanIterator.Next(ctx) {
-		if err := r.Redis.Del(ctx, scanIterator.Val()).Err(); err != nil {
+		if err := repository.Redis.Del(ctx, scanIterator.Val()).Err(); err != nil {
 			log.Printf("Failed to delete the refresh token: %s\n", scanIterator.Val())
 			failsCount++
 		}

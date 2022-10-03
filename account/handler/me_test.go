@@ -39,8 +39,8 @@ func TestMe(t *testing.T) {
 		// the only claims we care about in this test
 		// is the UserID.
 		router := gin.Default()
-		router.Use(func(c *gin.Context) {
-			c.Set("user", &model.User{
+		router.Use(func(context *gin.Context) {
+			context.Set("user", &model.User{
 				UserID: userID,
 			},
 			)
@@ -97,8 +97,8 @@ func TestMe(t *testing.T) {
 		responseRecorder := httptest.NewRecorder()
 
 		router := gin.Default()
-		router.Use(func(c *gin.Context) {
-			c.Set("user", &model.User{
+		router.Use(func(context *gin.Context) {
+			context.Set("user", &model.User{
 				UserID: userID,
 			},
 			)

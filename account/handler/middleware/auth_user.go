@@ -25,11 +25,11 @@ type invalidArgument struct {
 // which is of the form "Bearer token".
 // It sets the user to the context if the user exists.
 func AuthUser(s model.TokenService) gin.HandlerFunc {
-	return func(c *gin.Context) {
+	return func(context *gin.Context) {
 		h := authHeader{}
 
 		// Bind authorization Header to h and check for validation errors.
-		if err := c.ShouldBindHeader(&h); err != nil {
+		if err := context.ShouldBindHeader(&h); err != nil {
 			if errs, ok := err.(validator.ValidationErrors); ok {
 				// We used this type in bind_data to extract desired fields from errs.
 				// You might consider extracting it.
@@ -46,21 +46,21 @@ func AuthUser(s model.TokenService) gin.HandlerFunc {
 
 				err := apperrors.NewBadRequest("Invalid request parameters. See invalidArgs")
 
-				c.JSON(err.Status(), gin.H{
+				context.JSON(err.Status(), gin.H{
 					"error":       err,
 					"invalidArgs": invalidArgs,
 				})
-				c.Abort()
+				context.Abort()
 				return
 			}
 
 			// Otherwise erorr type is uknown.
 			err := apperrors.NewInternal()
-			c.JSON(err.Status(), gin.H{
+			context.JSON(err.Status(), gin.H{
 				"error": err,
 			})
 
-			c.Abort()
+			context.Abort()
 			return
 		}
 
@@ -69,10 +69,10 @@ func AuthUser(s model.TokenService) gin.HandlerFunc {
 		if len(idTokenHeader) < 2 {
 			err := apperrors.NewAuthorization("Must provide Authorization header with format `Bearer {token}`")
 
-			c.JSON(err.Status(), gin.H{
+			context.JSON(err.Status(), gin.H{
 				"eror": err,
 			})
-			c.Abort()
+			context.Abort()
 			return
 		}
 
@@ -81,15 +81,15 @@ func AuthUser(s model.TokenService) gin.HandlerFunc {
 
 		if err != nil {
 			err := apperrors.NewAuthorization("Provided token is invalid")
-			c.JSON(err.Status(), gin.H{
+			context.JSON(err.Status(), gin.H{
 				"error": err,
 			})
-			c.Abort()
+			context.Abort()
 			return
 		}
 
-		c.Set("user", user)
+		context.Set("user", user)
 
-		c.Next()
+		context.Next()
 	}
 }

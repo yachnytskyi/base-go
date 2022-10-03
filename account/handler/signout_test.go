@@ -31,8 +31,8 @@ func TestSignOut(t *testing.T) {
 
 		// Creates a test context for setting a user.
 		router := gin.Default()
-		router.Use(func(c *gin.Context) {
-			c.Set("user", contextUser)
+		router.Use(func(context *gin.Context) {
+			context.Set("user", contextUser)
 		})
 
 		mockTokenService := new(mocks.MockTokenService)
@@ -67,8 +67,8 @@ func TestSignOut(t *testing.T) {
 
 		// Creates a test context for setting a user.
 		router := gin.Default()
-		router.Use(func(c *gin.Context) {
-			c.Set("user", contextUser)
+		router.Use(func(context *gin.Context) {
+			context.Set("user", contextUser)
 		})
 
 		mockTokenService := new(mocks.MockTokenService)

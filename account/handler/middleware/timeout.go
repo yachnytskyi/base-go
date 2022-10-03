@@ -20,17 +20,17 @@ import (
 
 // Timeout wraps the request context with a timeout.
 func Timeout(timeout time.Duration, errorTimeout *apperrors.Error) gin.HandlerFunc {
-	return func(c *gin.Context) {
+	return func(ginContext *gin.Context) {
 		// Set Gin's writer as our custom writer.
-		timeWriter := &timeoutimeWriterriter{ResponseWriter: c.Writer, h: make(http.Header)}
-		c.Writer = timeWriter
+		timeWriter := &timeoutimeWriterriter{ResponseWriter: ginContext.Writer, h: make(http.Header)}
+		ginContext.Writer = timeWriter
 
 		// Wrap the request context with a timeout.
-		ctx, cancel := context.WithTimeout(c.Request.Context(), timeout)
+		ctx, cancel := context.WithTimeout(ginContext.Request.Context(), timeout)
 		defer cancel()
 
 		// Update gin request context.
-		c.Request = c.Request.WithContext(ctx)
+		ginContext.Request = ginContext.Request.WithContext(ctx)
 
 		finished := make(chan struct{})        // To indicate handler finished.
 		panicChan := make(chan interface{}, 1) // Used to handle panics if we cannot recover.
@@ -42,7 +42,7 @@ func Timeout(timeout time.Duration, errorTimeout *apperrors.Error) gin.HandlerFu
 				}
 			}()
 
-			c.Next() // Calls subsequent middleware(s) and handler.
+			ginContext.Next() // Calls subsequent middleware(s) and handler.
 			finished <- struct{}{}
 		}()
 
@@ -80,7 +80,7 @@ func Timeout(timeout time.Duration, errorTimeout *apperrors.Error) gin.HandlerFu
 				"error": errorTimeout,
 			})
 			timeWriter.ResponseWriter.Write(errorResponse)
-			c.Abort()
+			ginContext.Abort()
 			timeWriter.SetTimedOut()
 		}
 	}

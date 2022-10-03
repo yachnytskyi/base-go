@@ -25,8 +25,8 @@ func NewImageRepository(googleCloudClient *storage.Client, bucketName string) mo
 	}
 }
 
-func (r *googleCloudImageRepository) DeleteProfile(ctx context.Context, objectName string) error {
-	bucket := r.Storage.Bucket(r.BucketName)
+func (repository *googleCloudImageRepository) DeleteProfile(ctx context.Context, objectName string) error {
+	bucket := repository.Storage.Bucket(repository.BucketName)
 
 	object := bucket.Object(objectName)
 
@@ -38,8 +38,8 @@ func (r *googleCloudImageRepository) DeleteProfile(ctx context.Context, objectNa
 	return nil
 }
 
-func (r *googleCloudImageRepository) UpdateProfile(ctx context.Context, objectName string, imageFile multipart.File) (string, error) {
-	bucket := r.Storage.Bucket(r.BucketName)
+func (repository *googleCloudImageRepository) UpdateProfile(ctx context.Context, objectName string, imageFile multipart.File) (string, error) {
+	bucket := repository.Storage.Bucket(repository.BucketName)
 
 	object := bucket.Object(objectName)
 	writerStorage := object.NewWriter(ctx)
@@ -58,7 +58,7 @@ func (r *googleCloudImageRepository) UpdateProfile(ctx context.Context, objectNa
 		return "", fmt.Errorf("Writer.Close: %v", err)
 	}
 
-	imageURL := fmt.Sprintf("https://storage.googleapis.com/%s/%s", r.BucketName, objectName)
+	imageURL := fmt.Sprintf("https://storage.googleapis.com/%s/%s", repository.BucketName, objectName)
 
 	return imageURL, nil
 }

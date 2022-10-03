@@ -17,12 +17,12 @@ type detailsRequest struct {
 }
 
 // Details handler.
-func (h *Handler) Details(c *gin.Context) {
-	authUser := c.MustGet("user").(*model.User)
+func (h *Handler) Details(context *gin.Context) {
+	authUser := context.MustGet("user").(*model.User)
 
 	var request detailsRequest
 
-	if ok := bindData(c, &request); !ok {
+	if ok := bindData(context, &request); !ok {
 		return
 	}
 
@@ -34,19 +34,19 @@ func (h *Handler) Details(c *gin.Context) {
 		Website:  request.Website,
 	}
 
-	ctx := c.Request.Context()
+	ctx := context.Request.Context()
 	err := h.UserService.UpdateDetails(ctx, user)
 
 	if err != nil {
 		log.Printf("Failed to update the user: %v\n", err.Error())
 
-		c.JSON(apperrors.Status(err), gin.H{
+		context.JSON(apperrors.Status(err), gin.H{
 			"error": err,
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
+	context.JSON(http.StatusOK, gin.H{
 		"user": user,
 	})
 }

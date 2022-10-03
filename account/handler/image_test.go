@@ -26,8 +26,8 @@ func TestImage(t *testing.T) {
 	}
 
 	router := gin.Default()
-	router.Use(func(c *gin.Context) {
-		c.Set("user", &contextUser)
+	router.Use(func(context *gin.Context) {
+		context.Set("user", &contextUser)
 	})
 
 	mockUserService := new(mocks.MockUserService)
@@ -110,8 +110,8 @@ func TestImage(t *testing.T) {
 		}
 
 		router := gin.Default()
-		router.Use(func(c *gin.Context) {
-			c.Set("user", &contextUser)
+		router.Use(func(context *gin.Context) {
+			context.Set("user", &contextUser)
 		})
 
 		mockUserService := new(mocks.MockUserService)

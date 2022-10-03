@@ -48,8 +48,8 @@ func TestAuthUser(t *testing.T) {
 		// https://github.com/gin-gonic/gin/blob/master/auth_test.go#L91-L126
 		// We create a handler to return "a user added to context" as this
 		// is the only way to test modified context.
-		testContext.GET("/me", AuthUser(mockTokenService), func(c *gin.Context) {
-			contextKeyValue, _ := c.Get("user")
+		testContext.GET("/me", AuthUser(mockTokenService), func(context *gin.Context) {
+			contextKeyValue, _ := context.Get("user")
 			contextUser = contextKeyValue.(*model.User)
 		})
 
