@@ -1,3 +1,5 @@
+<div align="left">
+  
 ## Base Go     
 Source code for Base Go App.
 
@@ -16,6 +18,7 @@ found in `~/docker-compose.yml`.
 
 If you need to use some commands separately (for example make your own DB migrations),  to distinguish them from    
 others, you can check Makefile in the root directory.
+  
 
 ## Runing the Application
 
@@ -75,3 +78,5 @@ Launch tests for a service layer:
 
 Launch tests for a handler layer:   
 ```go test ./handler```
+
+</div>
