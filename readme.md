@@ -65,7 +65,7 @@ To run this code, you will need docker and docker-compose installed on your mach
 
 You can launch the tests using this command:      
 
-```go test   ./...```
+```go test ./...```
 
 This command lauches all tests in our application (for repository, service and handler layers). If you need to launch     
 a separate layer, instead of of using ```...``` you should use a folder name.
