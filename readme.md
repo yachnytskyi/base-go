@@ -10,7 +10,7 @@ Gin.
 Postgres.   
 Redis.**
 
-We have a script in Makefile which creates necessary keypairs (for creating dev and test JSON Web Tokens), runs   
+We have a script in Makefile that creates necessary keypairs (for creating dev and test JSON Web Tokens), runs   
 required docker-compose service for Postgres, migrates our database tables, then shuts down docker-compose.
 
 As an example, we will migrate database changes found in `~/account/migrations` to our postgres-account service   
