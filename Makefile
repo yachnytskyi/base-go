@@ -27,11 +27,11 @@ migrate-down:
 migrate-force:
 	migrate -source file://$(MPATH) -database postgres://postgres:password@localhost:$(PORT)/postgres?sslmode=disable force $(VERSION)
 
-# create dev and test keys.
-# run postgres containers in docker-compose.
-# migrate down.
-# migrate up.
-# docker-compose down.
+# Create dev and test keys.
+# Run postgres containers in docker-compose.
+# Migrate down.
+# Migrate up.
+# Docker-compose down.
 init:
 	docker-compose up -d postgres-account && \
 	$(MAKE) create-keypair ENV=dev && \
