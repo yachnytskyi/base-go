@@ -7,7 +7,7 @@ The project uses:
 
 **Golang    
 Gin  
-Postgres
+Postgres  
 Redis**
 
 We have a script in Makefile that creates necessary keypairs (for creating dev and test JSON Web Tokens), runs   
