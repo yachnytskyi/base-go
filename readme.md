@@ -5,10 +5,10 @@ Source code for Base Go App.
 
 The project uses:
 
-**Golang.     
-Gin.  
-Postgres.   
-Redis.**
+**Golang    
+Gin  
+Postgres
+Redis**
 
 We have a script in Makefile that creates necessary keypairs (for creating dev and test JSON Web Tokens), runs   
 required docker-compose service for Postgres, migrates our database tables, then shuts down docker-compose.
