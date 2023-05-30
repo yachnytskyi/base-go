@@ -41,7 +41,7 @@ You can also find all possible API requests/urls when you launch the project in 
 If you need to make rebuild, you have to use this command:
 
 ```docker-compose build```      
-After that repeat the command ```docker-compose up``` for launching the project.
+After that repeat ```docker-compose up``` command for launching the project.
 
 
 ### Google Cloud Key
